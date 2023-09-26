@@ -9,6 +9,7 @@ __pycache__/
 
 !*media/.gitkeep
 media/*
+fixtures/
 
 # C extensions
 *.so
@@ -116,7 +117,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-fixtures/
+
 
 # Spyder project settings
 .spyderproject
