@@ -1,0 +1,39 @@
+{% extends 'books/base.html' %}'
+{% load static %}
+
+{% block css %}
+  <link href="{% static '/css/profile.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-3">
+        <h1 class="my-4">{{ user.first_name }} {{ user.last_name }}</h1>
+        <div class="col-lg-12 text-center">
+          <img width="200" height="200"
+               src="{% if user.image %} {{ user.image.url }} {% else %} {% static '/img/users/default_avatar.jpg' %} {% endif %}"
+               class="img-thumbnail">
+        </div>
+        <div class="list-group mt-4">
+          <a href="#" class="list-group-item">Моя библиотека</a>
+          <a href="#" class="list-group-item">Мои заявки</a>
+          <a href="#" class="list-group-item">Уведомления</a>
+          <a href="{% url 'users:settings' user.id %}" class="list-group-item">Настройки</a>
+        </div>
+
+      </div>
+      <div class="col-lg-9">
+        {% block profile %} {% endblock %}
+
+{#        <h4 class="mt-5 mb-3">Приветствуем Вас, дорогой {{ user.first_name }}</h4>#}
+{#        <p class="mt-5 mb-3">Мы рады видеть вас в кругу наших читателей! Вы попали в нужный переплёт и теперь#}
+{#          находитесь на первой странице увлекательного приключения. А чтобы продвинуться дальше, нужно добавлять#}
+{#          прочитанные книги в библиотеку, писать отзывы, делать заказы. Каждый сделанный шаг формирует ваш уникальный#}
+{#          читательский портрет, благодаря которому предложенные рекомендации с наибольшей вероятностью придутся#}
+{#          вам по душе.</p>#}
+
+      </div>
+    </div>
+  </div>
+{% endblock %}
