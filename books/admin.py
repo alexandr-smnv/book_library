@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from books.models import Category, Author, Book
+from books.models import Category, Author, Book, Basket
 
 
 @admin.register(Category)
@@ -17,3 +17,9 @@ class AuthorAdmin(admin.ModelAdmin):
 @admin.register(Book)
 class BookAdmin(admin.ModelAdmin):
     list_display = ('title', 'author')
+
+
+class BasketAdmin(admin.TabularInline):
+    model = Basket
+    fields = ('book',)
+    extra = 0

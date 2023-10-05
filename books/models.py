@@ -1,6 +1,7 @@
 from django.db import models
 
 # Create your models here.
+from users.models import User
 
 
 class Category(models.Model):
@@ -44,3 +45,20 @@ class Book(models.Model):
         verbose_name = 'Книга'
         verbose_name_plural = 'Книги'
 
+
+class BasketQuerySet(models.QuerySet):
+    def total_sum(self):
+        return sum([basket.book.price for basket in self])
+
+    def quantity(self):
+        return len(self)
+
+
+class Basket(models.Model):
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    book = models.ForeignKey(to=Book, on_delete=models.CASCADE)
+
+    objects = BasketQuerySet.as_manager()
+
+    def __str__(self):
+        return f'Корзина для {self.user.username} | Книга: {self.book.title}'
