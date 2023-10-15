@@ -3,11 +3,21 @@ from datetime import datetime
 from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import CreateView
+from django.views.generic import CreateView, ListView
 
 from books.models import Basket
 from common.views import TitleMixin
 from order.forms import OrderForm
+from order.models import Order
+
+
+class OrderListView(TitleMixin, ListView):
+    template_name = 'order/orders.html'
+    title = 'Library - Мои заказы'
+    context_object_name = 'orders'
+
+    def get_queryset(self):
+        return Order.objects.filter(user=self.request.user)
 
 
 class OrderCreateView(TitleMixin, CreateView):
@@ -25,7 +35,7 @@ class OrderCreateView(TitleMixin, CreateView):
 
     def form_valid(self, form):
         baskets = Basket.objects.filter(user=self.request.user)
-        price = sum([basket.price_on_day() for basket in baskets]) * (form.cleaned_data['end_date'] - form.cleaned_data['start_date']).days
+        price = sum([basket.price_on_day() for basket in baskets]) * ((form.cleaned_data['end_date'] - form.cleaned_data['start_date']).days + 1)
         books = [basket.de_json() for basket in baskets]
         form.instance.user = self.request.user
         form.instance.books = books
