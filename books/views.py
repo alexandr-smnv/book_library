@@ -8,6 +8,7 @@ from django.views.generic import TemplateView, ListView
 
 from books.models import Book, Category, Basket
 from common.views import TitleMixin
+from order.forms import OrderForm
 
 
 class IndexView(TitleMixin, TemplateView):
@@ -39,11 +40,6 @@ class BooksListView(TitleMixin, ListView):
 class BasketView(TitleMixin, TemplateView):
     template_name = 'books/baskets.html'
     title = 'Library - Корзина'
-
-    def get_context_data(self, **kwargs):
-        context = super(BasketView, self).get_context_data(**kwargs)
-        context['baskets'] = Basket.objects.filter(user=self.request.user)
-        return context
 
 
 @login_required

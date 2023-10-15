@@ -1,3 +1,5 @@
+import decimal
+
 from django.db import models
 
 # Create your models here.
@@ -62,3 +64,14 @@ class Basket(models.Model):
 
     def __str__(self):
         return f'Корзина для {self.user.username} | Книга: {self.book.title}'
+
+    def de_json(self):
+        basket_item = {
+            'book_id': self.book.id,
+            'book_title': self.book.title,
+            'price': float(self.book.price),
+        }
+        return basket_item
+
+    def price_on_day(self):
+        return round(self.book.price * decimal.Decimal(0.05), 0)

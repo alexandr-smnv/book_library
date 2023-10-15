@@ -25,6 +25,7 @@ urlpatterns = [
     path("", IndexView.as_view(), name='index'),
     path("books/", include('books.urls', namespace='books')),
     path("users/", include('users.urls', namespace='users')),
+    path("order/", include('order.urls', namespace='order')),
 ]
 
 if settings.DEBUG:

@@ -1,0 +1,97 @@
+{% extends 'books/base.html' %}
+{% load humanize %}
+
+{% block content %}
+  <div class="container">
+    <div class="py-5 text-center">
+      <h1>Оформление заказа</h1>
+    </div>
+    <div class="row">
+      <div class="col">
+        <h4 class="d-flex justify-content-between align-items-center mb-3">
+          <span class="text-primary">Корзина</span>
+          <span class="badge badge-primary badge-pill text-white">{{ baskets.quantity }}</span>
+        </h4>
+        <ul class="list-group mb-3">
+          {% for basket in baskets %}
+            <li class="list-group-item d-flex justify-content-between lh-sm">
+              <div>
+                <h6 class="my-0">{{ basket.book.title }}</h6>
+              </div>
+              <span class="text-muted">{{ basket.price_on_day }} руб./ в день</span>
+            </li>
+          {% endfor %}
+          <li class="list-group-item d-flex justify-content-end">
+            <span>Сумма к оплате: </span>
+            <strong id="total_price">000</strong><span>руб.</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <h4 class="mb-3">Параметры заказа</h4>
+        <form action="{% url 'order:order-create' %}" method="post">
+          {% csrf_token %}
+          <div class="form-row">
+            <div class="col-lg-6">
+              <div class="form-group">
+                <label class="small mb-1" for="{{ form.first_name.id_for_label }}">Имя</label>
+                {{ form.first_name }}
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="form-group">
+                <label class="small mb-1" for="{{ form.last_name.id_for_label }}">Фамилия</label>
+                {{ form.last_name }}
+              </div>
+            </div>
+          </div>
+          <div id="date-r" class="form-row">
+            <div class="col-lg-6">
+              <div class="form-group">
+                <label class="small mb-1" for="{{ form.start_date.id_for_label }}">Начало аренды</label>
+                {{ form.start_date }}
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="form-group">
+                <label class="small mb-1" for="{{ form.end_date.id_for_label }}">Окончание аренды</label>
+                {{ form.end_date }}
+              </div>
+            </div>
+          </div>
+
+          <hr class="my-4">
+
+          <button class="w-100 btn btn-primary btn-lg" type="submit">Продолжить</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script type="text/javascript">
+      $(document).ready(function () {
+          $('#date-r').change(function (event) {
+              event.preventDefault();
+              var formData = {
+                  start_date: $("#date_start").val(),
+                  end_date: $("#date_end").val(),
+              };
+              $.ajax({
+                  type: 'POST',
+                  url: '{% url "order:update_data" %}',
+                  data: formData,
+                  dataType: 'json',
+                  success: function (data) {
+                      $('#total_price').html(data.total_price);
+                  },
+                  error: function (response) {
+                      // Do something on error
+                  }
+              });
+          });
+      });
+  </script>
+{% endblock %}
+
