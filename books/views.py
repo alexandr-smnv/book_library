@@ -8,7 +8,6 @@ from django.views.generic import TemplateView, ListView
 
 from books.models import Book, Category, Basket
 from common.views import TitleMixin
-from order.forms import OrderForm
 
 
 class IndexView(TitleMixin, TemplateView):

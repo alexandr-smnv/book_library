@@ -69,9 +69,17 @@ class Basket(models.Model):
         basket_item = {
             'book_id': self.book.id,
             'book_title': self.book.title,
+            'image': self.book.image.url,
             'price': float(self.book.price),
         }
         return basket_item
 
+    # обновление количества книг в наличии
+    def reduction_quantity(self):
+        book = Book.objects.get(id=self.book.id)
+        book.copies -= 1
+        book.save()
+
+    # вычисление стоимости аренды в день
     def price_on_day(self):
         return round(self.book.price * decimal.Decimal(0.05), 0)

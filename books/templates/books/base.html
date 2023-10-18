@@ -16,6 +16,11 @@
   <!-- Bootstrap core CSS -->
   <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
 
+  <!-- FontAwesome CSS -->
+  <link href="{% static 'fontawesomefree/css/fontawesome.css' %}" rel="stylesheet" type="text/css">
+  <link href="{% static 'fontawesomefree/css/brands.css' %}" rel="stylesheet" type="text/css">
+  <link href="{% static 'fontawesomefree/css/solid.css' %}" rel="stylesheet" type="text/css">
+
   <!-- Custom styles for this template -->
   {% block css %} {% endblock %}
 
@@ -37,7 +42,8 @@
           <a class="nav-link" href="{% url 'books:index' %}">Каталог <i class="fas fa-book"></i> </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'books:basket' %}">Корзина <i class="fa fa-shopping-basket" aria-hidden="true"></i></a>
+          <a class="nav-link" href="{% url 'books:basket' %}">Корзина <i class="fa fa-shopping-basket"
+                                                                         aria-hidden="true"></i></a>
         </li>
         {% if user.is_authenticated %}
           <li class="nav-item dropdown">
@@ -86,7 +92,9 @@
         crossorigin="anonymous"></script>
 
 <!-- FontAwesome script -->
-<script src="{% static 'fontawesome/fontawesome-icons.js' %}" crossorigin="anonymous"></script>
+<script src="{% static 'fontawesomefree/js/fontawesome.js' %}"></script>
+<script src="{% static 'fontawesomefree/js/solid.js' %}"></script>
+<script src="{% static 'fontawesomefree/js/brands.js' %}"></script>
 
 </body>
 

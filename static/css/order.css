@@ -1,0 +1,6 @@
+.order-book {
+    -webkit-box-shadow: -15px 13px 22px 0px rgba(34, 60, 80, 0.22);
+    -moz-box-shadow: -15px 13px 22px 0px rgba(34, 60, 80, 0.22);
+    box-shadow: -15px 13px 22px 0px rgba(34, 60, 80, 0.22);
+    border-radius: 0.25rem;
+}

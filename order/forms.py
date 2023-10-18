@@ -1,7 +1,4 @@
-from datetime import datetime
-
 from django import forms
-from django.contrib.admin.widgets import AdminDateWidget
 
 from order.models import Order
 
