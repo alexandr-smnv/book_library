@@ -14,7 +14,7 @@
         <div class="row mt-3">
           <div class="col-5">
             <h5 class="font-weight-bold">Получатель:</h5>
-            <div class="">{{ order.first_name }} {{ order.last_name }}</div>
+            <div>{{ order.first_name }} {{ order.last_name }}</div>
             <div>{{ order.user.email }}</div>
             <h5 class="font-weight-bold mt-3">Статус заказа:</h5>
             <span class="badge rounded-pill badge-primary">{{ order.get_status_display }}</span>

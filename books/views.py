@@ -4,7 +4,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
 # Create your views here.
-from django.views.generic import TemplateView, ListView
+from django.views.generic import TemplateView, ListView, DetailView
 
 from books.models import Book, Category, Basket
 from common.views import TitleMixin
@@ -13,6 +13,13 @@ from common.views import TitleMixin
 class IndexView(TitleMixin, TemplateView):
     template_name = 'books/index.html'
     title = 'Library Book'
+
+
+class BookDetailView(TitleMixin, DetailView):
+    model = Book
+    context_object_name = 'book'
+    title = 'Library Book'
+    template_name = 'books/book.html'
 
 
 class BooksListView(TitleMixin, ListView):

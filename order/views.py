@@ -46,7 +46,7 @@ class OrderCreateView(TitleMixin, CreateView):
 
     def form_valid(self, form):
         baskets = Basket.objects.filter(user=self.request.user)
-        price = sum([basket.price_on_day() for basket in baskets]) * ((form.cleaned_data['end_date'] - form.cleaned_data['start_date']).days + 1)
+        price = sum([basket.book.price_on_day() for basket in baskets]) * ((form.cleaned_data['end_date'] - form.cleaned_data['start_date']).days + 1)
         books = []
         for basket in baskets:
             basket.reduction_quantity()
@@ -64,7 +64,7 @@ def update_data(request):
     start_date = datetime.strptime(request.POST.get('start_date'), '%Y-%m-%d')
     end_date = datetime.strptime(request.POST.get('end_date'), '%Y-%m-%d')
     delta = (end_date - start_date).days + 1
-    price = sum([basket.price_on_day() for basket in baskets]) * delta
+    price = sum([basket.book.price_on_day() for basket in baskets]) * delta
 
     data = {'total_price': price}
     return JsonResponse(data)

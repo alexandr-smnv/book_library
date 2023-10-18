@@ -31,7 +31,7 @@
                 </a>
                 <div class="card-body">
                   <h4 class="card-title">
-                    <a href="#">{{ book.title }}</a>
+                    <a href="{% url 'books:book_detail' book.id %}">{{ book.title }}</a>
                   </h4>
                   <h5>{{ book.price }} руб.</h5>
                   <small>В наличии: {{ book.copies }} шт.</small>

@@ -40,6 +40,10 @@ class Book(models.Model):
     copies = models.PositiveIntegerField()
     image = models.ImageField(upload_to='book_images')
 
+    # вычисление стоимости аренды в день
+    def price_on_day(self):
+        return round(self.price * decimal.Decimal(0.05), 0)
+
     def __str__(self):
         return self.title
 
@@ -79,7 +83,3 @@ class Basket(models.Model):
         book = Book.objects.get(id=self.book.id)
         book.copies -= 1
         book.save()
-
-    # вычисление стоимости аренды в день
-    def price_on_day(self):
-        return round(self.book.price * decimal.Decimal(0.05), 0)

@@ -1,0 +1,76 @@
+{% extends 'books/base.html' %}
+{% load humanize static %}
+
+{% block css %}
+  {#  <link href="{% static 'css/order.css' %}" rel="stylesheet">#}
+{% endblock %}
+
+{% block content %}
+  <section>
+    <div class="container pt-5">
+      <div class="mt-3">
+        <div class="row mt-5">
+          <div class="col-4">
+            <img src="{{ book.image.url }}" class="img-fluid" alt="">
+            <h5 class="font-weight-bold mt-3">Цена: {{ book.price_on_day }} руб./ в день</h5>
+            {% if book.copies > 0 %}
+              <p class="small"><i class="fa-solid fa-check" style="color: #14ad00;"></i> В наличии {{ book.copies }} шт.
+              </p>
+              <a class="btn btn-outline-success"
+                 href="{% url 'books:basket_add' book.id %}">
+                Отправить в корзину
+              </a>
+            {% else %}
+              <p class="small"><i class="fa-solid fa-xmark" style="color: #ed1202;"></i> Нет в наличии</p>
+              <button type="button" class="btn btn-outline-secondary" disabled>Нет в наличии</button>
+            {% endif %}
+
+          </div>
+          <div class="col-6">
+            <h2>{{ book.title }}</h2>
+            <a href="#">
+              <h6>{{ book.author.name }} {{ book.author.surname }}</h6>
+            </a>
+
+            <div class="row my-3">
+              <div class="col-6">
+                <span class="badge rounded-pill badge-success" style="font-size: 120%">7.5</span>
+                <span class="small text-muted">500 оценок</span>
+              </div>
+              <div class="col-6">
+                <a class="text-decoration-none text-reset mr-2" href="#">
+                  <i class="fa-regular fa-thumbs-up fa-lg" style="color: #3b7500;"></i>
+                  <i class="fa-regular fa-thumbs-up fa-lg" style="color: #adadad;"></i>
+                </a>
+                <a class="text-decoration-none text-reset mr-2" href="#">
+                  <i class="fa-regular fa-face-meh fa-lg" style="color: #f7e308;"></i>
+                  <i class="fa-regular fa-face-meh fa-lg" style="color: #adadad;"></i>
+                </a>
+                <a class="text-decoration-none text-reset" href="#">
+                  <i class="fa-regular fa-thumbs-down fa-lg" style="color: #ca2407;"></i>
+                  <i class="fa-regular fa-thumbs-down fa-lg" style="color: #adadad;"></i>
+                </a>
+              </div>
+            </div>
+
+
+            <small class="text-muted small mb-0"><i class="fa-solid fa-quote-left"></i> Аннотация</small>
+            <p class="font-weight-light">{{ book.description }}</p>
+            <div class="row">
+
+            </div>
+            <p class="font-weight-bold">Количество страниц: {{ book.pages }}</p>
+            <h5 class="font-weight-bold">Отзывы</h5>
+          </div>
+          <div class="col-2">
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+
+
+
+
