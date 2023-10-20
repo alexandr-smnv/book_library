@@ -57,7 +57,7 @@
               </li>
               <li><a class="dropdown-item" href="{% url 'order:orders' %}">Заказы</a></li>
               {% if user.is_superuser or user.is_staff %}
-                <li><a class="dropdown-item" href="#">Админ-панель</a></li>
+                <li><a class="dropdown-item" href="{% url 'order:admin-list' %}">Админ-панель</a></li>
               {% endif %}
               <li>
                 <hr class="dropdown-divider">

@@ -7,46 +7,56 @@
 
 {% block content %}
   <section>
-    <div class="container pt-5">
-      <div class="mt-3">
-        <h1 class="font-weight-bold">Заказ № {{ order.id }}</h1>
-        <small>от {{ order.created|date }}</small>
-        <div class="row mt-3">
-          <div class="col-5">
-            <h5 class="font-weight-bold">Получатель:</h5>
-            <div>{{ order.first_name }} {{ order.last_name }}</div>
-            <div>{{ order.user.email }}</div>
-            <h5 class="font-weight-bold mt-3">Статус заказа:</h5>
-            <span class="badge rounded-pill badge-primary">{{ order.get_status_display }}</span>
-            <h6 class="font-weight-bold mt-3">Дата начала аренды:</h6>
-            <div>{{ order.start_date }}</div>
-            <h6 class="font-weight-bold mt-3">Дата окончания аренды:</h6>
-            <div>{{ order.end_date }}</div>
-            <h5 class="font-weight-bold mt-3">Сумма: {{ order.price }} руб.</h5>
-          </div>
-          <div class="col-7 order-book align-self-start">
-            {% for book in order.books %}
-              <div class="row my-3">
-                <div class="col-2">
-                  <img style="max-height: 84px" class="rounded-start mr-2" src="{{ book.image }}" alt="">
-                </div>
-                <div class="col-6">
-                  <h6 class="card-title mt-2">{{ book.book_title }}</h6>
-                </div>
-                <div class="col-2 align-self-center">
-                  {{ book.price }} руб.
-                </div>
-                <div class="col-2 align-self-center">
-                  <a href="#">
-                    <i class="fa-solid fa-comment mr-2"></i>
-                  </a>
-                  <a href="#">
-                  <i class="fa-regular fa-bookmark"></i>
-                  </a>
-                </div>
+    <div class="container pt-5 mt-3">
+      <h1 class="font-weight-bold">Заказ № {{ order.id }}</h1>
+      <small>от {{ order.created|date }}</small>
+      <div class="row mt-3">
+        <div class="col-5">
+          <h5 class="font-weight-bold">Получатель:</h5>
+          <div>{{ order.first_name }} {{ order.last_name }}</div>
+          <div>{{ order.user.email }}</div>
+          <h5 class="font-weight-bold mt-3">Статус заказа:</h5>
+          <span class="badge rounded-pill
+          {% if order.status == 0 %}
+                        badge-primary
+                        {% elif order.status == 1 %}
+                        badge-success
+                        {% elif order.status == 2 %}
+                        badge-secondary
+                        {% elif order.status == 3 %}
+                        badge-info
+                      	{% else %}
+                      	badge-danger
+                      	{% endif %}
+          ">{{ order.get_status_display }}</span>
+          <h6 class="font-weight-bold mt-3">Дата начала аренды:</h6>
+          <div>{{ order.start_date }}</div>
+          <h6 class="font-weight-bold mt-3">Дата окончания аренды:</h6>
+          <div>{{ order.end_date }}</div>
+          <h5 class="font-weight-bold mt-3">Сумма: {{ order.price }} руб.</h5>
+        </div>
+        <div class="col-7 order-book align-self-start">
+          {% for book in order.books %}
+            <div class="row my-3">
+              <div class="col-2">
+                <img style="max-height: 84px" class="rounded-start mr-2" src="{{ book.image }}" alt="">
               </div>
-            {% endfor %}
-          </div>
+              <div class="col-6">
+                <h6 class="card-title mt-2">{{ book.book_title }}</h6>
+              </div>
+              <div class="col-2 align-self-center">
+                {{ book.price }} руб./ в день
+              </div>
+              <div class="col-2 align-self-center">
+                <a href="#">
+                  <i class="fa-solid fa-comment mr-2"></i>
+                </a>
+                <a href="#">
+                  <i class="fa-regular fa-bookmark"></i>
+                </a>
+              </div>
+            </div>
+          {% endfor %}
         </div>
       </div>
     </div>

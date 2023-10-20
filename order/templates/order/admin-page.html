@@ -1,0 +1,41 @@
+{% extends 'books/base.html' %}
+
+{% block css %}
+
+{% endblock %}
+
+
+{% block content %}
+  <section>
+    <div class="container pt-5 mt-3">
+      <div class="row">
+        <table class="table">
+          <thead>
+          <tr class="table-light">
+            <th scope="col">ID заказа</th>
+            <th scope="col">Статус заказа</th>
+            <th scope="col">Дата создания</th>
+            <th scope="col">Начало аренды</th>
+            <th scope="col">Окончание аренды</th>
+            <th scope="col">Действие</th>
+          </tr>
+          </thead>
+          <tbody>
+          {% for order in orders %}
+          <tr>
+            <th scope="row">{{ order.id }}</th>
+            <td>{{ order.get_status_display }}</td>
+            <td>{{ order.created|date }}</td>
+            <td>{{ order.start_date|date }}</td>
+            <td>{{ order.end_date|date }}</td>
+            <td><a href="{% url 'order:admin-update' order.id %}">Изменить</a></td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+
+

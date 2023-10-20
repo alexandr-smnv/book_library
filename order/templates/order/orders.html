@@ -16,7 +16,19 @@
               <div class="card-body row justify-content-between">
                 <div class="col-6">
                   <h6>Статус заказа: <span
-                      class="badge rounded-pill badge-primary">{{ order.get_status_display }}</span></h6>
+                      class="badge rounded-pill
+                      {% if order.status == 0 %}
+                        badge-primary
+                        {% elif order.status == 1 %}
+                        badge-success
+                        {% elif order.status == 2 %}
+                        badge-secondary
+                        {% elif order.status == 3 %}
+                        badge-info
+                      	{% else %}
+                      	badge-danger
+                      	{% endif %}
+                      ">{{ order.get_status_display }}</span></h6>
                   <h6>Дата окончания аренды: <span>{{ order.end_date|date }}</span></h6>
                   <a class="btn btn-outline-primary btn-sm" href="{% url 'order:order' order.id %}">Подробнее</a>
                 </div>

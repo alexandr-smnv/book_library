@@ -74,11 +74,12 @@ class Basket(models.Model):
             'book_id': self.book.id,
             'book_title': self.book.title,
             'image': self.book.image.url,
-            'price': float(self.book.price),
+            'price': float(self.book.price_on_day()),
         }
         return basket_item
 
     # обновление количества книг в наличии
+    # ПОФИКСИТЬ ЧТОБЫ НА КАЖДУЮ КНИГУ НЕ ОТПРАВЛЯЛСЯ ОТДЕЛЬНЫЙ ЗАПРОС В БАЗУ
     def reduction_quantity(self):
         book = Book.objects.get(id=self.book.id)
         book.copies -= 1
