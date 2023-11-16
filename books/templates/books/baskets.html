@@ -30,19 +30,19 @@
                 </div>
                 <div class="col-md-2 text-center align-self-center">
                   <a href="{% url 'books:basket_remove' basket.id %}">
-                    <i class="fas fa-trash"></i>
+                    <i class="fa-solid fa-trash" style="color: #ed0202;"></i>
                   </a>
                 </div>
               </div>
             </div>
           {% endfor %}
 
-          <a class="btn btn-success btn-lg float-right" href="{% url 'order:order-create'%}">
+          <a class="btn btn-success btn-lg float-right" href="{% url 'order:order-create' %}">
             Оформить заказ
           </a>
 
         {% else %}
-          <h4 class="mt-3 mb-3 text-center">
+          <h4 class="mt-3 mb-3">
             Корзина пуста
           </h4>
         {% endif %}

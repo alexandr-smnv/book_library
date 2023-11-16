@@ -1,6 +1,7 @@
 from decimal import Decimal
 from datetime import datetime
 
+from django.contrib.messages.views import SuccessMessageMixin
 from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
@@ -32,11 +33,12 @@ class OrderDetailView(TitleMixin, DetailView):
         return context
 
 
-class OrderCreateView(TitleMixin, CreateView):
+class OrderCreateView(TitleMixin, SuccessMessageMixin, CreateView):
     template_name = 'order/order-create.html'
     title = 'Library - Оформление заказа'
     form_class = OrderForm
-    success_url = reverse_lazy('books:index')
+    success_url = reverse_lazy('order:orders')
+    success_message = 'Поздравляем Ваш заказ принят в работу!'
 
     def get_initial(self):
         initial = super().get_initial()

@@ -3,20 +3,19 @@
 
 {% block content %}
   <section>
-    <div class="container pt-5">
-      <div class="mt-3">
-        <h1>Заказы</h1>
-        <div class="orders mt-3">
-          {% for order in orders %}
-            <div class="card mb-3">
-              <div class="card-header">
-                <h3>Заказ от {{ order.created|date }}</h3>
-                <small>№ {{ order.id }}</small>
-              </div>
-              <div class="card-body row justify-content-between">
-                <div class="col-6">
-                  <h6>Статус заказа: <span
-                      class="badge rounded-pill
+    <div class="container mt-3">
+      {% if orders %}
+        <h4>Ваши заказы</h4>
+        {% for order in orders %}
+          <div class="card my-3">
+            <div class="card-header">
+              <h3>Заказ от {{ order.created|date }}</h3>
+              <small>№ {{ order.id }}</small>
+            </div>
+            <div class="card-body row justify-content-between">
+              <div class="col-6">
+                <h6>Статус заказа: <span
+                    class="badge rounded-pill
                       {% if order.status == 0 %}
                         badge-primary
                         {% elif order.status == 1 %}
@@ -29,19 +28,20 @@
                       	badge-danger
                       	{% endif %}
                       ">{{ order.get_status_display }}</span></h6>
-                  <h6>Дата окончания аренды: <span>{{ order.end_date|date }}</span></h6>
-                  <a class="btn btn-outline-primary btn-sm" href="{% url 'order:order' order.id %}">Подробнее</a>
-                </div>
-                <div class="col-6 text-right">
-                  {% for book in order.books %}
-                    <img style="max-height: 84px" class="rounded-start mr-2" src="{{ book.image }}" alt="">
-                  {% endfor %}
-                </div>
+                <h6>Дата окончания аренды: <span>{{ order.end_date|date }}</span></h6>
+                <a class="btn btn-outline-primary btn-sm" href="{% url 'order:order' order.id %}">Подробнее</a>
+              </div>
+              <div class="col-6 text-right">
+                {% for book in order.books %}
+                  <img style="max-height: 84px" class="rounded-start mr-2" src="{{ book.image }}" alt="">
+                {% endfor %}
               </div>
             </div>
-          {% endfor %}
+          </div>
+        {% endfor %}
         </div>
-      </div>
-    </div>
+      {% else %}
+        <h4>Список заказов пуст.</h4>
+      {% endif %}
   </section>
 {% endblock %}

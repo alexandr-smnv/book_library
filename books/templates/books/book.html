@@ -1,5 +1,6 @@
 {% extends 'books/base.html' %}
 {% load humanize static %}
+{% load book_tags %}
 
 {% block css %}
   {#  <link href="{% static 'css/order.css' %}" rel="stylesheet">#}
@@ -16,10 +17,21 @@
             {% if book.copies > 0 %}
               <p class="small"><i class="fa-solid fa-check" style="color: #14ad00;"></i> В наличии {{ book.copies }} шт.
               </p>
-              <a class="btn btn-outline-success"
-                 href="{% url 'books:basket_add' book.id %}">
-                Отправить в корзину
-              </a>
+              {% if book.id in basket_ids.keys %}
+                <a class="btn btn-outline-success disabled"
+                   href="#">
+                  Товар в корзине
+                </a>
+                <a class="btn btn-danger"
+                   href={% url 'books:basket_remove' basket_ids|get_value:book.id %}>
+                  <i class="fa-solid fa-trash" style="color: #ffffff;"></i>
+                </a>
+              {% else %}
+                <a class="btn btn-success"
+                   href="{% url 'books:basket_add' book.id %}">
+                  Отправить в корзину
+                </a>
+              {% endif %}
             {% else %}
               <p class="small"><i class="fa-solid fa-xmark" style="color: #ed1202;"></i> Нет в наличии</p>
               <button type="button" class="btn btn-outline-secondary" disabled>Нет в наличии</button>
