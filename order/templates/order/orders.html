@@ -6,6 +6,31 @@
     <div class="container mt-3">
       {% if orders %}
         <h4>Ваши заказы</h4>
+
+        <form action="{% url 'order:orders' %}" method="get">
+          <div class="form-row mt-3">
+            <div class="col-6">
+              {{ form.sort_form }}
+            </div>
+            <div class="col-6 text-right">
+              <p>
+                <a data-toggle="collapse" href="#collapseExample" role="button"
+                   aria-expanded="false" aria-controls="collapseExample">
+                  Фильтры
+                </a>
+              </p>
+            </div>
+            <div class="col-12 mt-3">
+              <div class="collapse" id="collapseExample">
+                <div class="card card-body">
+                  {{ form.status }}
+                  <button class="w-100 btn btn-success btn-lg" type="submit">Применить</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+
         {% for order in orders %}
           <div class="card my-3">
             <div class="card-header">

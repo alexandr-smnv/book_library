@@ -3,23 +3,42 @@ from datetime import datetime
 
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import JsonResponse
+from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import CreateView, ListView, DetailView, UpdateView
 
 from books.models import Basket
 from common.views import TitleMixin
-from order.forms import OrderForm, OrderUpdateForm
+from order.forms import OrderForm, OrderUpdateForm, SortForm
 from order.models import Order
 
 
 class OrderListView(TitleMixin, ListView):
+    model = Order
     template_name = 'order/orders.html'
     title = 'Library - Мои заказы'
     context_object_name = 'orders'
 
     def get_queryset(self):
-        return Order.objects.filter(user=self.request.user)
+        queryset = super(OrderListView, self).get_queryset().filter(user=self.request.user)
+
+        sort = self.request.GET.get('sort_form')
+        if sort:
+            queryset = queryset.order_by(sort)
+        else:
+            queryset = queryset.order_by('created')
+
+        status = self.request.GET.getlist('status')
+        if status:
+            queryset = queryset.filter(status__in=status)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(OrderListView, self).get_context_data(**kwargs)
+        context['form'] = SortForm(self.request.GET)
+        return context
 
 
 class OrderDetailView(TitleMixin, DetailView):

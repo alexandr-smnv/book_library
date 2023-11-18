@@ -2,6 +2,8 @@ from django import forms
 
 from order.models import Order, STATUSES
 
+SORTING = [('created', 'Старые'), ('-created', 'Новые'), ('end_date', 'По дате возврата')]
+
 
 class OrderForm(forms.ModelForm):
     first_name = forms.CharField(widget=forms.TextInput(attrs={
@@ -62,3 +64,13 @@ class OrderUpdateForm(forms.ModelForm):
     class Meta:
         model = Order
         fields = ('first_name', 'last_name', 'start_date', 'end_date', 'status',)
+
+
+class SortForm(forms.Form):
+    sort_form = forms.CharField(
+        widget=forms.Select(choices=SORTING, attrs={
+            'class': 'form-control form-select',
+            'onChange': 'form.submit();',
+        }),
+    )
+    status = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, choices=STATUSES)
