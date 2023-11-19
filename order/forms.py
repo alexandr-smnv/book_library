@@ -4,7 +4,7 @@ from django import forms
 
 from order.models import Order, STATUSES
 
-SORTING = [('created', 'Старые'), ('-created', 'Новые'), ('end_date', 'По дате возврата')]
+SORTING = [('-created', 'Новые'), ('created', 'Старые'), ('end_date', 'По дате возврата')]
 ADMIN_SORTING = [(('-created', 'Новые'), ('created', 'Старые'), ('end_date', 'По дате возврата'))]
 
 today = datetime.date.today()

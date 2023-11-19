@@ -3,15 +3,15 @@ from datetime import datetime
 
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Q
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import CreateView, ListView, DetailView, UpdateView
 
-from books.models import Basket
+from books.models import Basket, Book
 from common.views import TitleMixin
 from order.forms import OrderForm, OrderUpdateForm, SortForm
-from order.models import Order
+from order.models import Order, CANCELED
 
 
 class OrderListView(TitleMixin, ListView):
@@ -50,6 +50,19 @@ class OrderDetailView(TitleMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super(OrderDetailView, self).get_context_data(**kwargs)
         return context
+
+
+def order_cancel(request, order_id):
+    order = Order.objects.get(id=order_id)
+    if order.user == request.user and order.status != CANCELED:
+        for order_book in order.books:
+            book = Book.objects.get(id=order_book.get('book_id'))
+            book.copies += 1
+            book.save()
+        order.status = CANCELED
+        order.save()
+
+    return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 
 class OrderCreateView(TitleMixin, SuccessMessageMixin, CreateView):
@@ -136,17 +149,6 @@ class AdminPageView(TitleMixin, ListView):
 
         return queryset
 
-        # status = self.request.GET.getlist('status')
-        # start_date = self.request.GET.getlist('start_date')
-        # end_date = self.request.GET.getlist('end_date')
-        # if start_date:
-        #     queryset = queryset.filter(start_date__in=start_date)
-        # if end_date:
-        #     queryset = queryset.filter(end_date__in=end_date)
-        # if status:
-        #     queryset = queryset.filter(status__in=status)
-        # return queryset
-
     def get_context_data(self, **kwargs):
         context = super(AdminPageView, self).get_context_data(**kwargs)
         form = SortForm(self.request.GET)
@@ -166,3 +168,13 @@ class AdminUpdateOrderView(TitleMixin, UpdateView):
         initial['end_date'] = self.object.end_date.strftime('%Y-%m-%d')
         initial['status'] = self.object.status
         return initial
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        status = self.request.POST.get('status')
+        if status in ['3', '5']:
+            for order_book in self.object.books:
+                book = Book.objects.get(id=order_book.get('book_id'))
+                book.copies += 1
+                book.save()
+        return super(AdminUpdateOrderView, self).post(request, **kwargs)

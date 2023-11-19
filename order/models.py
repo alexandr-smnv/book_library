@@ -10,12 +10,14 @@ READY = 1
 RENTED = 2
 RETURNED = 3
 EXPIRED = 4
+CANCELED = 5
 STATUSES = (
     (REVIEW, 'На рассмотрении'),
     (READY, 'Готов к выдаче'),
     (RENTED, 'На выдаче'),
     (RETURNED, 'Возвращено'),
-    (EXPIRED, 'Просрочено')
+    (EXPIRED, 'Просрочено'),
+    (CANCELED, 'Отменен')
 )
 
 
