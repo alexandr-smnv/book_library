@@ -2,8 +2,8 @@ from decimal import Decimal
 from datetime import datetime
 
 from django.contrib.messages.views import SuccessMessageMixin
+from django.db.models import Q
 from django.http import JsonResponse
-from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import CreateView, ListView, DetailView, UpdateView
@@ -23,11 +23,11 @@ class OrderListView(TitleMixin, ListView):
     def get_queryset(self):
         queryset = super(OrderListView, self).get_queryset().filter(user=self.request.user)
 
-        sort = self.request.GET.get('sort_form')
+        sort = self.request.GET.get('sort')
         if sort:
             queryset = queryset.order_by(sort)
         else:
-            queryset = queryset.order_by('created')
+            queryset = queryset.order_by('-created')
 
         status = self.request.GET.getlist('status')
         if status:
@@ -109,6 +109,49 @@ class AdminPageView(TitleMixin, ListView):
     template_name = 'order/admin-page.html'
     title = 'Library - Администратор'
     context_object_name = 'orders'
+
+    def get_queryset(self):
+        queryset = super(AdminPageView, self).get_queryset().order_by('-created')
+        if not self.request.GET:
+            return queryset
+
+        # Сортировка
+        sort = self.request.GET.get('sort')
+        if sort:
+            queryset = queryset.order_by(sort)
+
+        # Поиск
+        search = self.request.GET.get('search')
+        if search:
+            queryset = queryset.filter(Q(id__icontains=search) | Q(last_name__icontains=search))
+
+        # Фильтрация
+        filters = Q()
+        options = ['status', 'start_date', 'end_date']
+        for key in options:
+            value = self.request.GET.getlist(key)
+            if value:
+                filters &= Q(**{f'{key}__in': value})
+            queryset = queryset.filter(filters)
+
+        return queryset
+
+        # status = self.request.GET.getlist('status')
+        # start_date = self.request.GET.getlist('start_date')
+        # end_date = self.request.GET.getlist('end_date')
+        # if start_date:
+        #     queryset = queryset.filter(start_date__in=start_date)
+        # if end_date:
+        #     queryset = queryset.filter(end_date__in=end_date)
+        # if status:
+        #     queryset = queryset.filter(status__in=status)
+        # return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(AdminPageView, self).get_context_data(**kwargs)
+        form = SortForm(self.request.GET)
+        context['form'] = form
+        return context
 
 
 class AdminUpdateOrderView(TitleMixin, UpdateView):

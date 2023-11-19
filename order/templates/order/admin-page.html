@@ -8,7 +8,55 @@
 {% block content %}
   <section>
     <div class="container mt-3">
-      <div class="row">
+      <h2>Панель администратора</h2>
+      <h6>Поиск заказа</h6>
+      <form action="{% url 'order:admin-list' %}" method="get">
+
+        <div class="form-row">
+          <div class="col-12 d-flex">
+            {{ form.search }}
+            <button class="btn" type="submit">
+              <span class="fa fa-search" aria-hidden="true"></span>
+            </button>
+          </div>
+
+        </div>
+        <div class="form-row mt-3">
+          <div class="col-6">
+            {{ form.sort }}
+          </div>
+          <div class="col-6 text-right">
+            <p>
+              <a data-toggle="collapse" href="#collapseExample" role="button"
+                 aria-expanded="false" aria-controls="collapseExample">
+                Фильтры
+              </a>
+            </p>
+          </div>
+          <div class="col-12 mt-3">
+            <div class="collapse" id="collapseExample">
+              <div class="card card-body">
+                <div class="row">
+                  <div class="col-4">
+                    <h6>Статус</h6>
+                    {{ form.status }}
+                  </div>
+                  <div class="col-4">
+                    <h6>Дата начала аренды</h6>
+                    {{ form.start_date }}
+                  </div>
+                  <div class="col-4">
+                    <h6>Дата окончания аренды</h6>
+                    {{ form.end_date }}
+                  </div>
+                </div>
+                <button class="btn btn-success btn-sm" type="submit">Применить</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+      {% if orders %}
         <table class="table">
           <thead>
           <tr class="table-light">
@@ -22,18 +70,20 @@
           </thead>
           <tbody>
           {% for order in orders %}
-          <tr>
-            <th scope="row">{{ order.id }}</th>
-            <td>{{ order.get_status_display }}</td>
-            <td>{{ order.created|date }}</td>
-            <td>{{ order.start_date|date }}</td>
-            <td>{{ order.end_date|date }}</td>
-            <td><a href="{% url 'order:admin-update' order.id %}">Изменить</a></td>
-          </tr>
+            <tr>
+              <th scope="row">{{ order.id }}</th>
+              <td>{{ order.get_status_display }}</td>
+              <td>{{ order.created|date }}</td>
+              <td>{{ order.start_date|date }}</td>
+              <td>{{ order.end_date|date }}</td>
+              <td><a href="{% url 'order:admin-update' order.id %}">Изменить</a></td>
+            </tr>
           {% endfor %}
           </tbody>
         </table>
-      </div>
+      {% else %}
+        <h4>Заказов не найдено</h4>
+      {% endif %}
     </div>
   </section>
 {% endblock %}

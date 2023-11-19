@@ -78,8 +78,8 @@
     </div>
   </div>
 </nav>
-<div class="container mt-3">
-  {% if messages or form.non_field_errors %}
+{% if messages or form.non_field_errors %}
+  <div class="container mt-3">
     <div class="alert
             {% if messages %} alert-success {% else %} alert-warning {% endif %}
              alert-dismissible fade show" role="alert">
@@ -94,8 +94,8 @@
         <span aria-hidden="true">&times;</span>
       </button>
     </div>
-  {% endif %}
-</div>
+  </div>
+{% endif %}
 
 <!-- Page Content -->
 {% block content %} {% endblock %}

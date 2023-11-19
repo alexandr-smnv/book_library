@@ -10,7 +10,7 @@
         <form action="{% url 'order:orders' %}" method="get">
           <div class="form-row mt-3">
             <div class="col-6">
-              {{ form.sort_form }}
+              {{ form.sort }}
             </div>
             <div class="col-6 text-right">
               <p>
@@ -24,7 +24,7 @@
               <div class="collapse" id="collapseExample">
                 <div class="card card-body">
                   {{ form.status }}
-                  <button class="w-100 btn btn-success btn-lg" type="submit">Применить</button>
+                  <button class="btn btn-success btn-sm" type="submit">Применить</button>
                 </div>
               </div>
             </div>
