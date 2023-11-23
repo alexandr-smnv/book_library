@@ -10,7 +10,7 @@ from django.views.generic import CreateView, ListView, DetailView, UpdateView
 
 from books.models import Basket, Book
 from common.views import TitleMixin
-from order.forms import OrderForm, OrderUpdateForm, SortForm
+from order.forms import OrderForm, OrderUpdateForm, SortForm, ARCHIVE
 from order.models import Order, CANCELED
 
 
@@ -60,6 +60,7 @@ def order_cancel(request, order_id):
             book.copies += 1
             book.save()
         order.status = CANCELED
+        order.archived = True
         order.save()
 
     return HttpResponseRedirect(request.META['HTTP_REFERER'])
@@ -124,9 +125,25 @@ class AdminPageView(TitleMixin, ListView):
     context_object_name = 'orders'
 
     def get_queryset(self):
-        queryset = super(AdminPageView, self).get_queryset().order_by('-created')
+        archived = self.request.GET.get('archived')
+        if archived == 'True':
+            queryset = super().get_queryset().filter(archived=True).order_by('-created')
+        elif archived == 'All':
+            queryset = super().get_queryset().order_by('-created')
+        else:
+            queryset = super().get_queryset().filter(archived=False).order_by('-created')
+
         if not self.request.GET:
             return queryset
+
+        # Фильтрация
+        filters = Q()
+        options = ['status', 'start_date', 'end_date']
+        for key in options:
+            value = self.request.GET.getlist(key)
+            if value:
+                filters &= Q(**{f'{key}__in': value})
+            queryset = queryset.filter(filters)
 
         # Сортировка
         sort = self.request.GET.get('sort')
@@ -138,20 +155,11 @@ class AdminPageView(TitleMixin, ListView):
         if search:
             queryset = queryset.filter(Q(id__icontains=search) | Q(last_name__icontains=search))
 
-        # Фильтрация
-        filters = Q()
-        options = ['status', 'start_date', 'end_date']
-        for key in options:
-            value = self.request.GET.getlist(key)
-            if value:
-                filters &= Q(**{f'{key}__in': value})
-            queryset = queryset.filter(filters)
-
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super(AdminPageView, self).get_context_data(**kwargs)
-        form = SortForm(self.request.GET)
+        form = SortForm(self.request.GET, initial={'archived': 'False'})
         context['form'] = form
         return context
 
@@ -177,4 +185,6 @@ class AdminUpdateOrderView(TitleMixin, UpdateView):
                 book = Book.objects.get(id=order_book.get('book_id'))
                 book.copies += 1
                 book.save()
+            self.object.archived = True
+            self.object.save()
         return super(AdminUpdateOrderView, self).post(request, **kwargs)

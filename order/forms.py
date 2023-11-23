@@ -1,6 +1,7 @@
 import datetime
 
 from django import forms
+from django.utils.datastructures import MultiValueDict
 
 from order.models import Order, STATUSES
 
@@ -13,6 +14,12 @@ tomorrow = today + datetime.timedelta(days=1)
 DAYS = (
     (today, 'Сегодня'),
     (tomorrow, 'Завтра'),
+)
+
+ARCHIVE = (
+    ('True', 'Только архивные'),
+    ('All', 'Все'),
+    ("False", 'Без архивных'),
 )
 
 
@@ -78,6 +85,11 @@ class OrderUpdateForm(forms.ModelForm):
 
 
 class SortForm(forms.Form):
+    def __init__(self, data, **kwargs):
+        initial = kwargs.get("initial", {})
+        data = MultiValueDict({**{k: [v] for k, v in initial.items()}, **data})
+        super().__init__(data, **kwargs)
+
     search = forms.CharField(required=False, widget=forms.TextInput(attrs={
         'class': 'form-control',
         'placeholder': 'Введите номер заказа или фамилию получателя'
@@ -91,3 +103,5 @@ class SortForm(forms.Form):
     status = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, choices=STATUSES)
     start_date = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, choices=DAYS)
     end_date = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, choices=DAYS)
+    archived = forms.ChoiceField(required=False, widget=forms.RadioSelect, choices=ARCHIVE)
+

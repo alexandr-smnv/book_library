@@ -31,7 +31,7 @@ class Order(models.Model):
     end_date = models.DateField(null=True, blank=True)
     status = models.SmallIntegerField(choices=STATUSES, default=REVIEW)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    expired = models.BooleanField(default=False)
+    archived = models.BooleanField(default=False)
 
     def __str__(self):
         return f'Заказ № {self.id}'
