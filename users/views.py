@@ -1,11 +1,15 @@
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
+from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
-from django.urls import reverse_lazy
+from django.http import HttpResponseRedirect
+from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView, TemplateView, UpdateView
 
 from common.views import TitleMixin
 from users.forms import UserRegistrationForm, UserLoginForm, UserProfileForm
-from users.models import User
+from users.models import User, EmailVerification
+from users.tasks import send_email_verification_task
 
 
 class UserLoginView(TitleMixin, LoginView):
@@ -25,6 +29,7 @@ class UserRegistrationView(TitleMixin, SuccessMessageMixin, CreateView):
 
 class UserProfileView(TitleMixin, TemplateView):
     template_name = 'users/profile.html'
+
     title = 'Library - Личный кабинет'
 
 
@@ -36,3 +41,28 @@ class UserProfileSettings(UpdateView):
 
     def get_success_url(self):
         return reverse_lazy('users:profile', args=(self.object.id,))
+
+
+class EmailVerificationView(TitleMixin, TemplateView):
+    title = 'Library - Подтверждение электронной почты'
+    template_name = 'users/email_verification.html'
+
+    def get(self, request, *args, **kwargs):
+        code = kwargs['code']
+        user = User.objects.get(email=kwargs['email'])
+        email_verifications = EmailVerification.objects.filter(user=user, code=code)
+        if email_verifications.exists() and not email_verifications.first().is_expired():
+            user.is_verified_email = True
+            user.save()
+            return super(EmailVerificationView, self).get(request, *args, **kwargs)
+        else:
+            # Добавить страницу с отклоненным подтверждением почты по причине истекшего срока действия ссылки
+            return HttpResponseRedirect(reverse('index'))
+
+
+@login_required
+def send_email_verification(request):
+    send_email_verification_task.delay(request.user.id)
+    print(request.user)
+    messages.success(request, 'Письмо с подтверждением отправлено на Ваш email!')
+    return HttpResponseRedirect(request.META['HTTP_REFERER'])
