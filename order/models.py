@@ -21,6 +21,12 @@ STATUSES = (
 )
 
 
+class OrderManager(models.Manager):
+    def expired_orders(self):
+        today = datetime.datetime.today()
+        return super().get_queryset().filter(end_date__lt=today)
+
+
 class Order(models.Model):
     user = models.ForeignKey(to=User, on_delete=models.CASCADE)
     first_name = models.CharField(max_length=150, blank=True)
@@ -33,8 +39,14 @@ class Order(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     archived = models.BooleanField(default=False)
 
+    object = OrderManager()
+
     def __str__(self):
         return f'Заказ № {self.id}'
+
+    def order_expired(self):
+        self.status = 4
+        self.save()
 
     def save(self, *args, **kwargs):
         self.price = ((self.end_date - self.start_date).days + 1) * sum([book['price'] for book in self.books])

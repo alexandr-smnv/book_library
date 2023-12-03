@@ -1,9 +1,13 @@
+import os
+from email.mime.image import MIMEImage
+
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 from django.db import models
 
 # Create your models here.
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.timezone import now
 
@@ -26,14 +30,28 @@ class EmailVerification(models.Model):
         link = reverse('users:email_verification', kwargs={'email': self.user.email, 'code': self.code})
         verification_link = f'{settings.DOMAIN_NAME}{link}'
         subject = f'Подтверждение учетной записи для {self.user.first_name}'
-        message = f'Для подтверждения учетной записи для {self.user.first_name} перейдите по ссылке: {verification_link}'
-        send_mail(
-            subject=subject,
-            message=message,
-            from_email=settings.EMAIL_HOST_USER,
-            recipient_list=[self.user.email],
-            fail_silently=False,
-        )
+        from_email = settings.EMAIL_HOST_USER
+        to = self.user.email
 
-    def is_expired(self):
-        return True if now() >= self.expiration else False
+        context = {'user': self.user, 'link': verification_link}
+        html_content = render_to_string('users/email_verification.html', context=context).strip()
+
+        msg = EmailMultiAlternatives(subject, html_content, from_email, [to])
+        # msg.attach_alternative(html_content, "text/html")
+        msg.content_subtype = 'html'
+        msg.mixed_subtype = 'related'
+
+        image = 'email.png'
+
+        img_path = os.path.join(settings.BASE_DIR, 'static/img/email.png')
+
+        with open(img_path, 'rb') as f:
+            img = MIMEImage(f.read())
+            img.add_header('Content-ID', '<{}>'.format(image))
+            img.add_header('Content-Disposition', 'inline', filename=image)
+            msg.attach(img)
+        msg.send()
+
+
+def is_expired(self):
+    return True if now() >= self.expiration else False
