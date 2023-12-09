@@ -73,6 +73,7 @@ class Basket(models.Model):
         basket_item = {
             'book_id': self.book.id,
             'book_title': self.book.title,
+            'author': f'{self.book.author.name} {self.book.author.surname}',
             'image': self.book.image.url,
             'price': float(self.book.price_on_day()),
         }

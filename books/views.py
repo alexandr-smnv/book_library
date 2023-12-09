@@ -1,12 +1,10 @@
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.http import HttpResponseRedirect
-from django.shortcuts import render
-
 # Create your views here.
-from django.views.generic import TemplateView, ListView, DetailView
+from django.views.generic import DetailView, ListView, TemplateView
 
-from books.models import Book, Category, Basket
+from books.models import Basket, Book, Category
 from common.views import TitleMixin
 
 

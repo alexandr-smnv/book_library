@@ -3,7 +3,7 @@ import datetime
 from django import forms
 from django.utils.datastructures import MultiValueDict
 
-from order.models import Order, STATUSES
+from order.models import STATUSES, Order
 
 SORTING = [('-created', 'Новые'), ('created', 'Старые'), ('end_date', 'По дате возврата')]
 ADMIN_SORTING = [(('-created', 'Новые'), ('created', 'Старые'), ('end_date', 'По дате возврата'))]
@@ -104,4 +104,3 @@ class SortForm(forms.Form):
     start_date = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, choices=DAYS)
     end_date = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, choices=DAYS)
     archived = forms.ChoiceField(required=False, widget=forms.RadioSelect, choices=ARCHIVE)
-

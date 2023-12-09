@@ -2,7 +2,6 @@ import datetime
 
 from django.db import models
 
-from books.models import Basket
 from users.models import User
 
 REVIEW = 0

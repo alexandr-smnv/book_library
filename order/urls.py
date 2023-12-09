@@ -1,7 +1,8 @@
 from django.urls import path
 
-from order.views import OrderCreateView, update_data, OrderListView, OrderDetailView, AdminPageView, \
-    AdminUpdateOrderView, update_data_admin, order_cancel
+from order.views import (AdminPageView, AdminUpdateOrderView, OrderCreateView,
+                         OrderDetailView, OrderListView, order_cancel,
+                         update_data, update_data_admin)
 
 app_name = 'order'
 

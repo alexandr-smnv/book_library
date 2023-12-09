@@ -1,17 +1,17 @@
-from decimal import Decimal
 from datetime import datetime
+from decimal import Decimal
 
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Q
-from django.http import JsonResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import CreateView, ListView, DetailView, UpdateView
+from django.views.generic import CreateView, DetailView, ListView, UpdateView
 
 from books.models import Basket, Book
 from common.views import TitleMixin
-from order.forms import OrderForm, OrderUpdateForm, SortForm, ARCHIVE
-from order.models import Order, CANCELED
+from order.forms import OrderForm, OrderUpdateForm, SortForm
+from order.models import CANCELED, Order
 
 
 class OrderListView(TitleMixin, ListView):

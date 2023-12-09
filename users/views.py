@@ -1,14 +1,15 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
-from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponseRedirect
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, TemplateView, UpdateView
 
 from common.views import TitleMixin
-from users.forms import UserRegistrationForm, UserLoginForm, UserProfileForm
-from users.models import User, EmailVerification
+from order.tasks import send_mail_expired_orders_task
+from users.forms import UserLoginForm, UserProfileForm, UserRegistrationForm
+from users.models import EmailVerification, User
 from users.tasks import send_email_verification_task
 
 
@@ -45,7 +46,7 @@ class UserProfileSettings(UpdateView):
 
 class EmailVerificationView(TitleMixin, TemplateView):
     title = 'Library - Подтверждение электронной почты'
-    template_name = 'users/email_verification.html'
+    template_name = 'users/successful_verification.html'
 
     def get(self, request, *args, **kwargs):
         code = kwargs['code']
@@ -63,6 +64,12 @@ class EmailVerificationView(TitleMixin, TemplateView):
 @login_required
 def send_email_verification(request):
     send_email_verification_task.delay(request.user.id)
-    print(request.user)
     messages.success(request, 'Письмо с подтверждением отправлено на Ваш email!')
+    return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+
+@login_required
+def send_email_expired(request):
+    send_mail_expired_orders_task.delay()
+    messages.success(request, 'Уведомления о просроченных заказах отправлены!')
     return HttpResponseRedirect(request.META['HTTP_REFERER'])

@@ -10,8 +10,12 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
 
 app.conf.beat_schedule = {
-    'every-day-in-23-00': {
+    'change_order_status': {
         'task': 'order.tasks.expired_orders_task',
-        'schedule': crontab(minute='16', hour='14')
+        'schedule': crontab(minute='00', hour='2')
+    },
+    'send_mail_expired_order': {
+        'task': 'order.tasks.send_mail_expired_orders_task',
+        'schedule': crontab(minute='00', hour='10')
     },
 }
