@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import (LoginView, PasswordResetConfirmView,
+                                       PasswordResetView)
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
@@ -8,7 +9,9 @@ from django.views.generic import CreateView, TemplateView, UpdateView
 
 from common.views import TitleMixin
 from order.tasks import send_mail_expired_orders_task
-from users.forms import UserLoginForm, UserProfileForm, UserRegistrationForm
+from users.forms import (UserForgotPasswordForm, UserLoginForm,
+                         UserProfileForm, UserRegistrationForm,
+                         UserSetNewPasswordForm)
 from users.models import EmailVerification, User
 from users.tasks import send_email_verification_task
 
@@ -30,11 +33,10 @@ class UserRegistrationView(TitleMixin, SuccessMessageMixin, CreateView):
 
 class UserProfileView(TitleMixin, TemplateView):
     template_name = 'users/profile.html'
-
     title = 'Library - Личный кабинет'
 
 
-class UserProfileSettings(UpdateView):
+class UserProfileSettings(TitleMixin, UpdateView):
     model = User
     template_name = 'users/settings.html'
     form_class = UserProfileForm
@@ -73,3 +75,36 @@ def send_email_expired(request):
     send_mail_expired_orders_task.delay()
     messages.success(request, 'Уведомления о просроченных заказах отправлены!')
     return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+
+class UserForgotPasswordView(SuccessMessageMixin, PasswordResetView):
+    """
+    Представление по сбросу пароля по почте
+    """
+    form_class = UserForgotPasswordForm
+    template_name = 'users/user_password_reset.html'
+    success_url = reverse_lazy('books:index')
+    success_message = 'Письмо с инструкцией по восстановлению пароля отправлена на ваш email'
+    subject_template_name = 'users/mail__password_subject_reset_mail.txt'
+    email_template_name = 'users/mail__password_reset_mail.html'
+    html_email_template_name = 'users/mail__html_password_reset_mail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Запрос на восстановление пароля'
+        return context
+
+
+class UserPasswordResetConfirmView(SuccessMessageMixin, PasswordResetConfirmView):
+    """
+    Представление установки нового пароля
+    """
+    form_class = UserSetNewPasswordForm
+    template_name = 'users/user_password_set_new.html'
+    success_url = reverse_lazy('books:index')
+    success_message = 'Пароль успешно изменен. Можете авторизоваться на сайте.'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Установить новый пароль'
+        return context

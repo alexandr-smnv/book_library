@@ -41,7 +41,7 @@ class EmailVerification(models.Model):
         to = self.user.email
 
         context = {'user': self.user, 'links': links}
-        html_content = render_to_string('users/email_verification.html', context=context).strip()
+        html_content = render_to_string('users/mail__email_verification.html', context=context).strip()
 
         msg = EmailMultiAlternatives(subject, html_content, from_email, [to])
         # msg.attach_alternative(html_content, "text/html")

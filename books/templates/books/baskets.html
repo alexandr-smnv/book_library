@@ -26,7 +26,7 @@
                   <p class="card-text">{{ basket.book.author.name }} {{ basket.book.author.surname }}</p>
                 </div>
                 <div class="col-md-2 text-center align-self-center">
-                  <p class="card-text">{{ basket.book.price|intcomma }} руб.</p>
+                  <p class="card-text">{{ basket.book.price_on_day|intcomma }} руб./день</p>
                 </div>
                 <div class="col-md-2 text-center align-self-center">
                   <a href="{% url 'books:basket_remove' basket.id %}">
