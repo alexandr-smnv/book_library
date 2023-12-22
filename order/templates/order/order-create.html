@@ -32,37 +32,22 @@
         <h4 class="mb-3">Параметры заказа</h4>
         <form action="{% url 'order:order-create' %}" method="post">
           {% csrf_token %}
-          <div class="form-row">
-            <div class="col-lg-6">
-              <div class="form-group">
-                <label class="small mb-1" for="{{ form.first_name.id_for_label }}">Имя</label>
-                {{ form.first_name }}
-              </div>
-            </div>
-            <div class="col-lg-6">
-              <div class="form-group">
-                <label class="small mb-1" for="{{ form.last_name.id_for_label }}">Фамилия</label>
-                {{ form.last_name }}
-              </div>
-            </div>
-          </div>
           <div id="date-r" class="form-row">
-            <div class="col-lg-6">
-              <div class="form-group">
-                <label class="small mb-1" for="{{ form.start_date.id_for_label }}">Начало аренды</label>
-                {{ form.start_date }}
+            {% for field in form %}
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="small mb-1" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                  {{ field }}
+                  <div style="width: 100%; margin-top: 0.25em;">
+                    {% for error in field.errors %}
+                      <small><strong style="color: #950612">- {{ error }}</strong></small><br>
+                    {% endfor %}
+                  </div>
+                </div>
               </div>
-            </div>
-            <div class="col-lg-6">
-              <div class="form-group">
-                <label class="small mb-1" for="{{ form.end_date.id_for_label }}">Окончание аренды</label>
-                {{ form.end_date }}
-              </div>
-            </div>
+            {% endfor %}
           </div>
-
           <hr class="my-4">
-
           <button class="w-100 btn btn-primary btn-lg" type="submit">Продолжить</button>
         </form>
       </div>

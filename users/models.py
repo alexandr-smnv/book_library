@@ -7,12 +7,21 @@ from django.db import models
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.timezone import now
+from django.utils.translation import gettext_lazy as _
 
 from order.utils import add_image_context
 
 
 class User(AbstractUser):
     # image = models.ImageField(upload_to='users_images', null=True, blank=True)
+    email = models.EmailField(
+        _("email address"),
+        unique=True,
+        error_messages={
+            "unique": _("Пользователь с таким email уже существует"),
+        },
+        blank=True)
+
     is_verified_email = models.BooleanField(default=False)
 
 

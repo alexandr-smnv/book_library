@@ -43,11 +43,11 @@
         <li class="nav-item">
           <a class="nav-link" href="{% url 'books:index' %}">Каталог <i class="fas fa-book"></i> </a>
         </li>
-        <li class="nav-item">
+        {% if user.is_authenticated %}
+          <li class="nav-item">
           <a class="nav-link" href="{% url 'books:basket' %}">Корзина <i class="fa fa-shopping-basket"
                                                                          aria-hidden="true"></i></a>
         </li>
-        {% if user.is_authenticated %}
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                data-bs-toggle="dropdown" aria-expanded="false">
@@ -80,22 +80,33 @@
     </div>
   </div>
 </nav>
+
 {% if messages or form.non_field_errors %}
   <div class="container mt-3">
-    <div class="alert
-            {% if messages %} alert-success {% else %} alert-warning {% endif %}
-             alert-dismissible fade show" role="alert">
-      {% if messages %}
-        {% for message in messages %}
+    {% if messages %}
+      {% for message in messages %}
+        <div
+            class="alert {% if message.tags == 'error' %} alert-danger {% else %} alert-{{ message.tags }} {% endif %} alert-dismissible fade show"
+            role="alert"
+            style="margin-top: 50px;">
           {{ message }}
-        {% endfor %}
-      {% else %}
-        {{ form.non_field_errors }}
-      {% endif %}
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      {% endfor %}
+    {% endif %}
+    {% for error in form.non_field_errors %}
+      <div
+          class="alert alert-danger alert-dismissible fade show"
+          role="alert"
+          style="margin-top: 50px;">
+        {{ error }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+    {% endfor %}
   </div>
 {% endif %}
 

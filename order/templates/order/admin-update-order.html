@@ -13,41 +13,35 @@
       <form class="pt-3" action="#" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <div id="date-r" class="form-row">
-          <div class="col-6">
-            <div class="form-group">
-              <label class="small mb-1 form-label" for="{{ form.first_name.id_for_label }}">Имя получателя</label>
-              {{ form.first_name }}
-              <label class="small mb-1 form-label" for="{{ form.start_date.id_for_label }}">Дата начала аренды</label>
-              {{ form.start_date }}
-              <label class="small mb-1" for="{{ form.status.id_for_label }}">Статус заказа</label>
-              {{ form.status }}
-
-            </div>
-          </div>
-          <div class="col-6">
-            <div class="form-group">
-              <label class="small mb-1 form-label" for="{{ form.last_name.id_for_label }}">Фамилия получателя</label>
-              {{ form.last_name }}
-              <label class="small mb-1" for="{{ form.end_date.id_for_label }}">Дата окончания аренды</label>
-              {{ form.end_date }}
-            </div>
-          </div>
-          <h6 class="font-weight-bold">Состав заказа:</h6>
-          <div class="col-12 order-book">
-            {% for book in order.books %}
-              <div class="row my-3">
-                <div class="col-2 ml-3">
-                  <img style="max-height: 84px" class="rounded-start mr-2" src="{{ book.image }}" alt="">
-                </div>
-                <div class="col-4 align-self-center">
-                  <h6 class="card-title mt-2">{{ book.book_title }}</h6>
-                </div>
-                <div class="col-4 align-self-center">
-                  {{ book.price }} руб./ в день
+          {% for field in form %}
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="small mb-1" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                <div style="width: 100%; margin-top: 0.25em;">
+                  {% for error in field.errors %}
+                    <small><strong style="color: #950612">- {{ error }}</strong></small><br>
+                  {% endfor %}
                 </div>
               </div>
-            {% endfor %}
-          </div>
+            </div>
+          {% endfor %}
+        </div>
+        <h6 class="font-weight-bold">Состав заказа:</h6>
+        <div class="col-12 order-book">
+          {% for book in order.books %}
+            <div class="row my-3">
+              <div class="col-2 ml-3">
+                <img style="max-height: 84px" class="rounded-start mr-2" src="{{ book.image }}" alt="">
+              </div>
+              <div class="col-4 align-self-center">
+                <h6 class="card-title mt-2">{{ book.book_title }}</h6>
+              </div>
+              <div class="col-4 align-self-center">
+                {{ book.price }} руб./ в день
+              </div>
+            </div>
+          {% endfor %}
         </div>
         <div class="form-row">
           <h5 class="font-weight-bold mt-3">Итого: <span id="total_price">{{ order.price }}</span> руб.</h5>

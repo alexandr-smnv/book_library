@@ -36,19 +36,21 @@ class UserProfileView(TitleMixin, TemplateView):
     title = 'Library - Личный кабинет'
 
 
-class UserProfileSettings(TitleMixin, UpdateView):
+class UserProfileSettings(TitleMixin, SuccessMessageMixin, UpdateView):
     model = User
     template_name = 'users/settings.html'
     form_class = UserProfileForm
     title = 'Library - Параметры'
+    success_message = 'Данные успешно изменены!'
 
     def get_success_url(self):
         return reverse_lazy('users:profile', args=(self.object.id,))
 
 
-class EmailVerificationView(TitleMixin, TemplateView):
+class EmailVerificationView(TitleMixin, TemplateView, SuccessMessageMixin):
     title = 'Library - Подтверждение электронной почты'
     template_name = 'users/successful_verification.html'
+    success_message = 'Поздравляем! Ваша учетная запись успешно подтверждена!'
 
     def get(self, request, *args, **kwargs):
         code = kwargs['code']
@@ -59,8 +61,9 @@ class EmailVerificationView(TitleMixin, TemplateView):
             user.save()
             return super(EmailVerificationView, self).get(request, *args, **kwargs)
         else:
-            # Добавить страницу с отклоненным подтверждением почты по причине истекшего срока действия ссылки
-            return HttpResponseRedirect(reverse('index'))
+            messages.add_message(self.request, messages.ERROR, 'Произошла ошибка. Срок действия ссылки истек. Пройдите '
+                                                               'заново подтверждение почты в профиле пользователя!')
+            return HttpResponseRedirect(reverse('books:index'))
 
 
 @login_required

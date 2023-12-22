@@ -106,7 +106,7 @@ def update_data(request):
 
 @csrf_exempt
 def update_data_admin(request, pk):
-    order = Order.objects.get(id=pk)
+    order = Order.objects.filter(id=pk).first()
     start_date = datetime.strptime(request.POST.get('start_date'), '%Y-%m-%d')
     end_date = datetime.strptime(request.POST.get('end_date'), '%Y-%m-%d')
     delta = (end_date - start_date).days + 1
@@ -169,6 +169,7 @@ class AdminUpdateOrderView(TitleMixin, UpdateView):
     template_name = 'order/admin-update-order.html'
     success_url = reverse_lazy('order:admin-list')
     form_class = OrderUpdateForm
+    title = 'Library - Администратор'
 
     def get_initial(self):
         initial = super().get_initial()
@@ -178,7 +179,7 @@ class AdminUpdateOrderView(TitleMixin, UpdateView):
         return initial
 
     def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
+        self.objects = self.get_object()
         status = self.request.POST.get('status')
         if status in ['3', '5']:
             for order_book in self.object.books:

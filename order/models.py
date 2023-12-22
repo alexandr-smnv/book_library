@@ -38,7 +38,7 @@ class Order(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     archived = models.BooleanField(default=False)
 
-    object = OrderManager()
+    objects = OrderManager()
 
     def __str__(self):
         return f'Заказ № {self.id}'
