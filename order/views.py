@@ -11,62 +11,11 @@ from django.views.generic import CreateView, DetailView, ListView, UpdateView
 from books.models import Basket, Book
 from common.views import TitleMixin
 from order.forms import OrderForm, OrderUpdateForm, SortForm
-from order.models import CANCELED, Order
-
-
-class OrderListView(TitleMixin, ListView):
-    model = Order
-    template_name = 'order/orders.html'
-    title = 'Library - Мои заказы'
-    context_object_name = 'orders'
-
-    def get_queryset(self):
-        queryset = super(OrderListView, self).get_queryset().filter(user=self.request.user)
-
-        sort = self.request.GET.get('sort')
-        if sort:
-            queryset = queryset.order_by(sort)
-        else:
-            queryset = queryset.order_by('-created')
-
-        status = self.request.GET.getlist('status')
-        if status:
-            queryset = queryset.filter(status__in=status)
-
-        return queryset
-
-    def get_context_data(self, **kwargs):
-        context = super(OrderListView, self).get_context_data(**kwargs)
-        context['form'] = SortForm(self.request.GET)
-        return context
-
-
-class OrderDetailView(TitleMixin, DetailView):
-    template_name = 'order/order.html'
-    title = 'Library - Мои заказ'
-    model = Order
-    context_object_name = 'order'
-
-    def get_context_data(self, **kwargs):
-        context = super(OrderDetailView, self).get_context_data(**kwargs)
-        return context
-
-
-def order_cancel(request, order_id):
-    order = Order.objects.get(id=order_id)
-    if order.user == request.user and order.status != CANCELED:
-        for order_book in order.books:
-            book = Book.objects.get(id=order_book.get('book_id'))
-            book.copies += 1
-            book.save()
-        order.status = CANCELED
-        order.archived = True
-        order.save()
-
-    return HttpResponseRedirect(request.META['HTTP_REFERER'])
+from order.models import READY, REVIEW, Order
 
 
 class OrderCreateView(TitleMixin, SuccessMessageMixin, CreateView):
+    """Создание заказа"""
     template_name = 'order/order-create.html'
     title = 'Library - Оформление заказа'
     form_class = OrderForm
@@ -81,6 +30,7 @@ class OrderCreateView(TitleMixin, SuccessMessageMixin, CreateView):
         return initial
 
     def form_valid(self, form):
+        """Если форма валидна"""
         baskets = Basket.objects.filter(user=self.request.user)
         books = []
         for basket in baskets:
@@ -88,12 +38,73 @@ class OrderCreateView(TitleMixin, SuccessMessageMixin, CreateView):
             books.append(basket.de_json())
         form.instance.user = self.request.user
         form.instance.books = books
+        # Удаление корзины пользователя
         baskets.delete()
         return super(OrderCreateView, self).form_valid(form)
 
 
+class OrderListView(TitleMixin, ListView):
+    """Список заказов пользователя"""
+    model = Order
+    template_name = 'order/orders.html'
+    title = 'Library - Мои заказы'
+    context_object_name = 'orders'
+
+    def get_queryset(self):
+        queryset = super(OrderListView, self).get_queryset().filter(user=self.request.user)
+
+        # Сортировка заказов по дате
+        sort = self.request.GET.get('sort')
+        if sort:
+            queryset = queryset.order_by(sort)
+        else:
+            queryset = queryset.order_by('-created')
+
+        # Фильтрация заказов по статусу
+        status = self.request.GET.getlist('status')
+        if status:
+            queryset = queryset.filter(status__in=status)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(OrderListView, self).get_context_data(**kwargs)
+        context['form'] = SortForm(self.request.GET)
+        return context
+
+
+class OrderDetailView(TitleMixin, DetailView):
+    """Подробная информация о заказе"""
+    template_name = 'order/order.html'
+    title = 'Library - Мои заказ'
+    model = Order
+    context_object_name = 'order'
+
+    def get_context_data(self, **kwargs):
+        context = super(OrderDetailView, self).get_context_data(**kwargs)
+        return context
+
+
+def order_cancel(request, order_id):
+    """Отмена заказа"""
+    order = Order.objects.get(id=order_id)
+    # Заказ не должен быть получен пользователем
+    if order.user == request.user and order.status in (REVIEW, READY):
+        for order_book in order.books:
+            # Восстановление количества товаров в наличии
+            book = Book.objects.get(id=order_book.get('book_id'))
+            book.copies += 1
+            book.save()
+        order.order_cancel()
+    else:
+        print('Заказ не может быть отменен')
+
+    return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+
 @csrf_exempt
 def update_data(request):
+    """Обновление цены в зависимости от срока аренды"""
     baskets = Basket.objects.filter(user=request.user)
     start_date = datetime.strptime(request.POST.get('start_date'), '%Y-%m-%d')
     end_date = datetime.strptime(request.POST.get('end_date'), '%Y-%m-%d')
@@ -106,6 +117,7 @@ def update_data(request):
 
 @csrf_exempt
 def update_data_admin(request, pk):
+    """Обновление цены в зависимости от срока аренды"""
     order = Order.objects.filter(id=pk).first()
     start_date = datetime.strptime(request.POST.get('start_date'), '%Y-%m-%d')
     end_date = datetime.strptime(request.POST.get('end_date'), '%Y-%m-%d')
@@ -119,6 +131,7 @@ def update_data_admin(request, pk):
 
 
 class AdminPageView(TitleMixin, ListView):
+    """Панель администратора для управления заказами"""
     model = Order
     template_name = 'order/admin-page.html'
     title = 'Library - Администратор'
@@ -165,6 +178,7 @@ class AdminPageView(TitleMixin, ListView):
 
 
 class AdminUpdateOrderView(TitleMixin, UpdateView):
+    """Внесение изменений в заказ с админ панели"""
     model = Order
     template_name = 'order/admin-update-order.html'
     success_url = reverse_lazy('order:admin-list')
@@ -181,11 +195,14 @@ class AdminUpdateOrderView(TitleMixin, UpdateView):
     def post(self, request, *args, **kwargs):
         self.objects = self.get_object()
         status = self.request.POST.get('status')
+        # Если статус заказа - "Возвращено" или "Отменен"
         if status in ['3', '5']:
+            # Восстановление количества товаров в наличии
             for order_book in self.object.books:
                 book = Book.objects.get(id=order_book.get('book_id'))
                 book.copies += 1
                 book.save()
+            # Внесение заказа в архив
             self.object.archived = True
             self.object.save()
         return super(AdminUpdateOrderView, self).post(request, **kwargs)

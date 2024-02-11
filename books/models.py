@@ -2,11 +2,13 @@ import decimal
 
 from django.db import models
 
-# Create your models here.
 from users.models import User
 
 
 class Category(models.Model):
+    """
+        Категория книг
+    """
     title = models.CharField(max_length=128, unique=True)
 
     def __str__(self):
@@ -18,6 +20,9 @@ class Category(models.Model):
 
 
 class Author(models.Model):
+    """
+        Автор книг
+    """
     name = models.CharField(max_length=128)
     surname = models.CharField(max_length=128)
     biography = models.TextField()
@@ -31,6 +36,9 @@ class Author(models.Model):
 
 
 class Book(models.Model):
+    """
+        Книга
+    """
     title = models.CharField(max_length=250)
     author = models.ForeignKey(to=Author, on_delete=models.CASCADE)
     category = models.ForeignKey(to=Category, on_delete=models.CASCADE)
@@ -40,8 +48,8 @@ class Book(models.Model):
     copies = models.PositiveIntegerField()
     image = models.ImageField(upload_to='book_images')
 
-    # вычисление стоимости аренды в день
     def price_on_day(self):
+        """Вычисление стоимости аренды в день"""
         return round(self.price * decimal.Decimal(0.05), 0)
 
     def __str__(self):
@@ -54,13 +62,18 @@ class Book(models.Model):
 
 class BasketQuerySet(models.QuerySet):
     def total_sum(self):
+        """Общая сумма книг в корзине"""
         return sum([basket.book.price for basket in self])
 
     def quantity(self):
+        """Количество книг в корзине"""
         return len(self)
 
 
 class Basket(models.Model):
+    """
+        Корзина
+    """
     user = models.ForeignKey(to=User, on_delete=models.CASCADE)
     book = models.ForeignKey(to=Book, on_delete=models.CASCADE)
 
@@ -70,6 +83,7 @@ class Basket(models.Model):
         return f'Корзина для {self.user.username} | Книга: {self.book.title}'
 
     def de_json(self):
+        """Запись в json формат данных из корзины"""
         basket_item = {
             'book_id': self.book.id,
             'book_title': self.book.title,
@@ -79,9 +93,10 @@ class Basket(models.Model):
         }
         return basket_item
 
-    # обновление количества книг в наличии
-    # ПОФИКСИТЬ ЧТОБЫ НА КАЖДУЮ КНИГУ НЕ ОТПРАВЛЯЛСЯ ОТДЕЛЬНЫЙ ЗАПРОС В БАЗУ
     def reduction_quantity(self):
+        """
+        Обновление количества книг в наличии на сайте после оформления заказа
+        """
         book = Book.objects.get(id=self.book.id)
         book.copies -= 1
         book.save()

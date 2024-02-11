@@ -8,7 +8,8 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, TemplateView, UpdateView
 
 from common.views import TitleMixin
-from order.tasks import send_mail_expired_orders_task
+from order.tasks import (send_mail_cancel_order_task,
+                         send_mail_expired_orders_task)
 from users.forms import (UserForgotPasswordForm, UserLoginForm,
                          UserProfileForm, UserRegistrationForm,
                          UserSetNewPasswordForm)
@@ -17,12 +18,14 @@ from users.tasks import send_email_verification_task
 
 
 class UserLoginView(TitleMixin, LoginView):
+    """Авторизация пользователя"""
     template_name = 'users/login.html'
     form_class = UserLoginForm
     title = 'Library - Авторизация'
 
 
 class UserRegistrationView(TitleMixin, SuccessMessageMixin, CreateView):
+    """Регистрация пользователя"""
     model = User
     form_class = UserRegistrationForm
     template_name = 'users/registration.html'
@@ -32,11 +35,13 @@ class UserRegistrationView(TitleMixin, SuccessMessageMixin, CreateView):
 
 
 class UserProfileView(TitleMixin, TemplateView):
+    """Личный кабинет пользователя"""
     template_name = 'users/profile.html'
     title = 'Library - Личный кабинет'
 
 
 class UserProfileSettings(TitleMixin, SuccessMessageMixin, UpdateView):
+    """Параметры пользователя"""
     model = User
     template_name = 'users/settings.html'
     form_class = UserProfileForm
@@ -48,6 +53,7 @@ class UserProfileSettings(TitleMixin, SuccessMessageMixin, UpdateView):
 
 
 class EmailVerificationView(TitleMixin, TemplateView, SuccessMessageMixin):
+    """Верификация пользователя"""
     title = 'Library - Подтверждение электронной почты'
     template_name = 'users/successful_verification.html'
     success_message = 'Поздравляем! Ваша учетная запись успешно подтверждена!'
@@ -56,6 +62,7 @@ class EmailVerificationView(TitleMixin, TemplateView, SuccessMessageMixin):
         code = kwargs['code']
         user = User.objects.get(email=kwargs['email'])
         email_verifications = EmailVerification.objects.filter(user=user, code=code)
+        # Если верификация верна и срок кода подтверждения не истек
         if email_verifications.exists() and not email_verifications.first().is_expired():
             user.is_verified_email = True
             user.save()
@@ -68,22 +75,14 @@ class EmailVerificationView(TitleMixin, TemplateView, SuccessMessageMixin):
 
 @login_required
 def send_email_verification(request):
+    """Отправка письма с верификацией"""
     send_email_verification_task.delay(request.user.id)
     messages.success(request, 'Письмо с подтверждением отправлено на Ваш email!')
     return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 
-@login_required
-def send_email_expired(request):
-    send_mail_expired_orders_task.delay()
-    messages.success(request, 'Уведомления о просроченных заказах отправлены!')
-    return HttpResponseRedirect(request.META['HTTP_REFERER'])
-
-
 class UserForgotPasswordView(SuccessMessageMixin, PasswordResetView):
-    """
-    Представление по сбросу пароля по почте
-    """
+    """Сброс пароля"""
     form_class = UserForgotPasswordForm
     template_name = 'users/user_password_reset.html'
     success_url = reverse_lazy('books:index')
@@ -99,9 +98,7 @@ class UserForgotPasswordView(SuccessMessageMixin, PasswordResetView):
 
 
 class UserPasswordResetConfirmView(SuccessMessageMixin, PasswordResetConfirmView):
-    """
-    Представление установки нового пароля
-    """
+    """Установка нового пароля"""
     form_class = UserSetNewPasswordForm
     template_name = 'users/user_password_set_new.html'
     success_url = reverse_lazy('books:index')
@@ -111,3 +108,20 @@ class UserPasswordResetConfirmView(SuccessMessageMixin, PasswordResetConfirmView
         context = super().get_context_data(**kwargs)
         context['title'] = 'Установить новый пароль'
         return context
+
+
+# ДЛЯ ТЕСТА ОТПРАВКИ EMAIL
+@login_required
+def send_email_expired(request):
+    """Отправка письма с просроченными заказами"""
+    send_mail_expired_orders_task.delay()
+    messages.success(request, 'Уведомления о просроченных заказах отправлены!')
+    return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+
+@login_required
+def send_email_cancel_order(request):
+    """Отправка письма об отмене заказа"""
+    send_mail_cancel_order_task.delay()
+    messages.success(request, 'Уведомления об отмене заказа отправлено!')
+    return HttpResponseRedirect(request.META['HTTP_REFERER'])

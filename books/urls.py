@@ -7,8 +7,8 @@ app_name = 'books'
 
 urlpatterns = [
     path("", BooksListView.as_view(), name='index'),
-    path("book/<int:pk>/", BookDetailView.as_view(), name='book_detail'),
     path("category/<int:category_id>", BooksListView.as_view(), name='categories'),
+    path("book/<int:pk>/", BookDetailView.as_view(), name='book_detail'),
     path("basket", BasketView.as_view(), name='basket'),
     path("baskets/add/<int:book_id>", basket_add, name='basket_add'),
     path("baskets/remove/<int:basket_id>", basket_remove, name='basket_remove'),

@@ -34,7 +34,7 @@
           <h6 class="font-weight-bold mt-3">Дата окончания аренды:</h6>
           <div>{{ order.end_date }}</div>
           <h5 class="font-weight-bold mt-3">Сумма: {{ order.price }} руб.</h5>
-          {% if order.status != 5 %}
+          {% if order.status == 0 or order.status == 1 %}
             <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#exampleModal">
               Отменить заказ
             </button>

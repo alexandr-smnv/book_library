@@ -1,7 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.http import HttpResponseRedirect
-# Create your views here.
 from django.views.generic import DetailView, ListView, TemplateView
 
 from books.models import Basket, Book, Category
@@ -9,11 +8,13 @@ from common.views import TitleMixin
 
 
 class IndexView(TitleMixin, TemplateView):
+    """Стартовая страница"""
     template_name = 'books/index.html'
     title = 'Library Book'
 
 
 class BookDetailView(TitleMixin, DetailView):
+    """Подробное описание книги"""
     model = Book
     context_object_name = 'book'
     title = 'Library Book'
@@ -21,6 +22,7 @@ class BookDetailView(TitleMixin, DetailView):
 
 
 class BooksListView(TitleMixin, ListView):
+    """Каталог книг"""
     model = Book
     template_name = 'books/books.html'
     title = 'Library - Каталог'
@@ -42,12 +44,19 @@ class BooksListView(TitleMixin, ListView):
 
 
 class BasketView(TitleMixin, TemplateView):
+    """Корзина"""
     template_name = 'books/baskets.html'
     title = 'Library - Корзина'
 
 
 @login_required
 def basket_add(request, book_id):
+    """
+    Добавление товара в корзину
+    :param request: используется для определения id пользователя
+    :param book_id: id книги
+    :return: Обновление страницы
+    """
     book = Book.objects.get(id=book_id)
     baskets = Basket.objects.filter(user=request.user, book=book)
 
@@ -60,6 +69,9 @@ def basket_add(request, book_id):
 
 
 def basket_remove(request, basket_id):
+    """
+    Удаление товара из корзины
+    """
     basket = Basket.objects.get(id=basket_id)
     basket.delete()
     return HttpResponseRedirect(request.META['HTTP_REFERER'])

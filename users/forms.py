@@ -4,10 +4,11 @@ from django.contrib.auth.forms import (AuthenticationForm, PasswordResetForm,
 
 from users.models import User
 from users.tasks import (send_email_verification_task,
-                         send_mail_for_reset_password)
+                         send_mail_reset_password_task)
 
 
 class UserLoginForm(AuthenticationForm):
+    """Форма для авторизации пользователя"""
     username = forms.CharField(
         label='Имя пользователя',
         widget=forms.TextInput(attrs={
@@ -23,6 +24,7 @@ class UserLoginForm(AuthenticationForm):
 
 
 class UserRegistrationForm(UserCreationForm):
+    """Форма для регистрации пользователя"""
     first_name = forms.CharField(
         label='Имя',
         widget=forms.TextInput(attrs={
@@ -65,12 +67,15 @@ class UserRegistrationForm(UserCreationForm):
         fields = ('first_name', 'last_name', 'username', 'email', 'password1', 'password2')
 
     def save(self, commit=True):
+        """Сохранение пользователя"""
         user = super(UserRegistrationForm, self).save(commit=True)
+        # создание таски на отправку письма для верификации
         send_email_verification_task.delay(user.id)
         return user
 
 
 class UserProfileForm(forms.ModelForm):
+    """Форма с параметрами пользователя"""
     first_name = forms.CharField(
         label='Имя',
         widget=forms.TextInput(attrs={
@@ -98,10 +103,7 @@ class UserProfileForm(forms.ModelForm):
 
 
 class UserForgotPasswordForm(PasswordResetForm):
-    """
-    Запрос на восстановление пароля
-    """
-
+    """Форма для сброса пароля"""
     def __init__(self, *args, **kwargs):
         """
         Обновление стилей формы
@@ -124,7 +126,7 @@ class UserForgotPasswordForm(PasswordResetForm):
         """
         context['user'] = context['user'].id
 
-        send_mail_for_reset_password.delay(
+        send_mail_reset_password_task.delay(
             subject_template_name=subject_template_name,
             email_template_name=email_template_name,
             context=context,
@@ -135,9 +137,8 @@ class UserForgotPasswordForm(PasswordResetForm):
 
 class UserSetNewPasswordForm(SetPasswordForm):
     """
-    Изменение пароля пользователя после подтверждения
+    Установка нового пароля
     """
-
     def __init__(self, *args, **kwargs):
         """
         Обновление стилей формы

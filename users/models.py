@@ -13,6 +13,9 @@ from order.utils import add_image_context
 
 
 class User(AbstractUser):
+    """
+        Пользователь
+    """
     # image = models.ImageField(upload_to='users_images', null=True, blank=True)
     email = models.EmailField(
         _("email address"),
@@ -26,6 +29,9 @@ class User(AbstractUser):
 
 
 class EmailVerification(models.Model):
+    """
+        Верификация пользователя
+    """
     code = models.UUIDField(unique=True)
     user = models.ForeignKey(to=User, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
@@ -53,7 +59,6 @@ class EmailVerification(models.Model):
         html_content = render_to_string('users/mail__email_verification.html', context=context).strip()
 
         msg = EmailMultiAlternatives(subject, html_content, from_email, [to])
-        # msg.attach_alternative(html_content, "text/html")
         msg.content_subtype = 'html'
         msg.mixed_subtype = 'related'
 

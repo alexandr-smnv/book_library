@@ -10,6 +10,9 @@ from users.utils import send_email_reset_password
 
 @shared_task()
 def send_email_verification_task(user_id):
+    """
+    Отправка сообщения на email для верификации пользователя
+    """
     user = User.objects.get(id=user_id)
     expiration = now() + timedelta(hours=48)
     record = EmailVerification.objects.get(user=user)
@@ -22,7 +25,7 @@ def send_email_verification_task(user_id):
 
 
 @shared_task
-def send_mail_for_reset_password(
+def send_mail_reset_password_task(
         subject_template_name,
         email_template_name,
         context,
@@ -30,6 +33,9 @@ def send_mail_for_reset_password(
         to_email,
         html_email_template_name
 ):
+    """
+    Отправка сообщения на email для сброса пароля
+    """
 
     context['user'] = User.objects.get(pk=context['user'])
 

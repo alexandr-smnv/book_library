@@ -11,6 +11,7 @@ from PIL import Image
 
 
 def compressing_img(img_path, img_name):
+    """Сжатие изображения (требуется для отправки email без вложения"""
     image = Image.open(img_path)
     quality = 95
     target = 15000
@@ -32,26 +33,29 @@ def compressing_img(img_path, img_name):
     return url
 
 
+#  ====== НЕ ИСОЛЬЗУЕТСЯ
 # Не используется (не знаю что лучше: функция или класс)
-class MimeImage:
-    def __init__(self, image, path_img, msg):
-        self.image = image
-        self.path_img = path_img
-        self.msg = msg
-
-    def set_name_content_id(self, value=1):
-        self.image = f'{self.image}_{value}'
-
-    def set_image_context(self):
-        with open(self.path_img, 'rb') as f:
-            img = MIMEImage(f.read())
-            img.add_header('Content-ID', self.image)
-            img.add_header('Content-Disposition', 'attachment', filename=self.image)
-            img.add_header("Content-Transfer-Encoding", "base64")
-            self.msg.attach(img)
+# class MimeImage:
+#     def __init__(self, image, path_img, msg):
+#         self.image = image
+#         self.path_img = path_img
+#         self.msg = msg
+#
+#     def set_name_content_id(self, value=1):
+#         self.image = f'{self.image}_{value}'
+#
+#     def set_image_context(self):
+#         with open(self.path_img, 'rb') as f:
+#             img = MIMEImage(f.read())
+#             img.add_header('Content-ID', self.image)
+#             img.add_header('Content-Disposition', 'attachment', filename=self.image)
+#             img.add_header("Content-Transfer-Encoding", "base64")
+#             self.msg.attach(img)
+# ======
 
 
 def add_image_context(path_img, msg, context_key='image', image_id=None):
+    """Добавление изображения в context"""
     if image_id:
         context_key = f'{str(context_key)}_{str(image_id)}'
 
@@ -63,7 +67,15 @@ def add_image_context(path_img, msg, context_key='image', image_id=None):
         msg.attach(img)
 
 
-def send_expired_email(user, orders):
+def custom_send_mail(
+        subject_template_name,
+        email_template_name,
+        to_email,
+        context,
+        ):
+    """
+    Отправка email сообщения
+    """
     domain = settings.DOMAIN_NAME
     login = reverse('users:login')
     books = reverse('books:index')
@@ -72,18 +84,15 @@ def send_expired_email(user, orders):
         'login': f'{domain}{login}',
         'books': f'{domain}{books}',
     }
-    expired_days = datetime.date.today() - orders.first().end_date
-    subject = 'ВНИМАНИЕ!!! У Вас есть просроченные заказы'
-    from_email = settings.EMAIL_HOST_USER
-    to = user.email
-    context = {'user': user, 'orders': orders, 'links': links, 'expired_days': expired_days.days}
-    html_content = render_to_string('order/email_expired.html', context=context).strip()
+    context['links'] = links
+    html_content = render_to_string(email_template_name, context=context).strip()
 
-    msg = EmailMultiAlternatives(subject, html_content, from_email, [to])
+    from_email = settings.EMAIL_HOST_USER
+    msg = EmailMultiAlternatives(subject_template_name, html_content, from_email, to_email)
     msg.content_subtype = 'html'
     msg.mixed_subtype = 'multipart'
 
-    for order in orders:
+    for order in context['orders']:
         for book in order.books:
             img_path = os.path.join(settings.BASE_DIR, book.get('image')[1:])
             new_path = compressing_img(img_path, f'image_{book.get("book_id")}')
@@ -92,5 +101,30 @@ def send_expired_email(user, orders):
 
     logo_path = os.path.join(settings.BASE_DIR, 'static/img/logo_for_email.png')
     add_image_context(logo_path, msg, context_key='logo_for_email')
+
+    return msg
+
+
+def send_expired_email(user, orders):
+    """Отправка сообщения с просроченными заказами"""
+    expired_days = datetime.date.today() - orders.first().end_date
+    context = {'user': user, 'orders': orders, 'expired_days': expired_days.days}
+    msg = custom_send_mail(
+        'ВНИМАНИЕ!!! У Вас есть просроченные заказы',
+        'order/email_expired.html',
+        [user.email],
+        context)
+
+    msg.send()
+
+
+def send_email_about_cancel_order(user, orders):
+    """Отправка сообщения с отмененными заказами"""
+    context = {'user': user, 'orders': orders}
+    msg = custom_send_mail(
+        'Срок ожидания заказа истек!',
+        'order/email_cancel_order.html',
+        [user.email],
+        context)
 
     msg.send()

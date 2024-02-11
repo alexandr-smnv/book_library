@@ -1,6 +1,8 @@
 import datetime
 
 from django.db import models
+from django.db.models import Q
+from django.utils import timezone
 
 from users.models import User
 
@@ -19,14 +21,22 @@ STATUSES = (
     (CANCELED, 'Отменен')
 )
 
+TODAY = datetime.date.today()
+
 
 class OrderManager(models.Manager):
     def expired_orders(self):
-        today = datetime.datetime.today()
-        return super().get_queryset().filter(end_date__lt=today)
+        """Проверка на просроченные заказы"""
+        return super().get_queryset().filter(Q(archived=False) & Q(end_date__lt=TODAY))
+
+    def cancel_waiting(self):
+        """Выбор заказов готовых к выдаче с превышенным временем ожидания в 3 дня"""
+        now = timezone.now() - datetime.timedelta(days=3)
+        return super().get_queryset().filter(created__lt=now, status=1)
 
 
 class Order(models.Model):
+    """Заказ"""
     user = models.ForeignKey(to=User, on_delete=models.CASCADE)
     first_name = models.CharField(max_length=150, blank=True)
     last_name = models.CharField(max_length=150, blank=True)
@@ -44,9 +54,19 @@ class Order(models.Model):
         return f'Заказ № {self.id}'
 
     def order_expired(self):
-        self.status = 4
+        """Изменение статуса заказа на 'Просрочено' """
+        self.status = EXPIRED
+        self.save()
+
+    def order_cancel(self):
+        """Изменение статуса заказа на 'Отменен' """
+        self.status = CANCELED
+        self.archived = True
         self.save()
 
     def save(self, *args, **kwargs):
+        """
+        Вычисление стоимости заказа в зависимости от срока аренды перед сохранением
+        """
         self.price = ((self.end_date - self.start_date).days + 1) * sum([book['price'] for book in self.books])
         super(Order, self).save(*args, **kwargs)

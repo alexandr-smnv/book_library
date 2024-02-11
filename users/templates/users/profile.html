@@ -17,7 +17,8 @@
         </div>
         {% if not user.is_verified_email %}
           <a class="btn btn-warning btn-block" href="{% url 'users:send_email_verification' %}">Подтвердить email</a>
-{#          <a class="btn btn-warning btn-block mt-3" href="{% url 'users:send_email_expired' %}">Рассылка</a>#}
+          <a class="btn btn-warning btn-block mt-3" href="{% url 'users:send_email_cancel_order' %}">Email об отмене заказа</a>
+          <a class="btn btn-warning btn-block mt-3" href="{% url 'users:send_email_expired' %}">Email о просроченных заказах</a>
         {% endif %}
         <div class="list-group mt-4">
           <a href="#" class="list-group-item">Моя библиотека</a>

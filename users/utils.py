@@ -17,7 +17,9 @@ def send_email_reset_password(
         to_email,
         html_email_template_name=None,
 ):
-
+    """
+        Отправка сообщения на email для сброса пароля
+    """
     domain = settings.DOMAIN_NAME
     login = reverse('users:login')
     books = reverse('books:index')

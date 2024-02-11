@@ -35,6 +35,7 @@ def validation_dates(self, start_date, end_date):
 
 
 class OrderForm(forms.ModelForm):
+    """Форма оформления заказа"""
     first_name = forms.CharField(
         label='Имя получателя',
         widget=forms.TextInput(attrs={
@@ -72,11 +73,12 @@ class OrderForm(forms.ModelForm):
         cleaned_data = super().clean()
         start_date = cleaned_data.get("start_date")
         end_date = cleaned_data.get("end_date")
-
+        # Валидация данных
         validation_dates(self, start_date, end_date)
 
 
 class OrderUpdateForm(forms.ModelForm):
+    """Форма внесение изменений в заказ"""
     first_name = forms.CharField(
         label='Имя получателя',
         widget=forms.TextInput(attrs={
