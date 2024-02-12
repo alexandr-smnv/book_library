@@ -20,6 +20,15 @@ class BookDetailView(TitleMixin, DetailView):
     title = 'Library Book'
     template_name = 'books/book.html'
 
+    def get_context_data(self, **kwargs):
+        context = super(BookDetailView, self).get_context_data()
+        book = context['book']
+        if book.liked_by.filter(id=self.request.user.id):
+            context['is_liked'] = True
+        else:
+            context['is_liked'] = False
+        return context
+
 
 class BooksListView(TitleMixin, ListView):
     """Каталог книг"""
@@ -41,6 +50,29 @@ class BooksListView(TitleMixin, ListView):
         else:
             context['categories'] = categories
         return context
+
+
+class BooksLikedList(TitleMixin, ListView):
+    """Список избранных книг"""
+    template_name = 'books/liked_books.html'
+    title = 'Library - Избранное'
+
+    def get_queryset(self):
+        return self.request.user.liked_books.all()
+
+
+@login_required
+def add_like(request, book_id):
+    book = Book.objects.get(id=book_id)
+    book.add_like(request.user)
+    return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+
+@login_required
+def remove_like(request, book_id):
+    book = Book.objects.get(id=book_id)
+    book.remove_like(request.user)
+    return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 
 class BasketView(TitleMixin, TemplateView):

@@ -21,7 +21,7 @@
           <a class="btn btn-warning btn-block mt-3" href="{% url 'users:send_email_expired' %}">Email о просроченных заказах</a>
         {% endif %}
         <div class="list-group mt-4">
-          <a href="#" class="list-group-item">Моя библиотека</a>
+          <a href="{% url 'books:liked_books' %}" class="list-group-item">Моя библиотека</a>
           <a href="#" class="list-group-item">Мои заявки</a>
           <a href="#" class="list-group-item">Уведомления</a>
           <a href="{% url 'users:settings' user.id %}" class="list-group-item">Настройки</a>

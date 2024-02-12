@@ -47,10 +47,17 @@ class Book(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     copies = models.PositiveIntegerField()
     image = models.ImageField(upload_to='book_images')
+    liked_by = models.ManyToManyField(to=User, related_name='liked_books')
 
     def price_on_day(self):
         """Вычисление стоимости аренды в день"""
         return round(self.price * decimal.Decimal(0.05), 0)
+
+    def add_like(self, user):
+        self.liked_by.add(user)
+
+    def remove_like(self, user):
+        self.liked_by.remove(user)
 
     def __str__(self):
         return self.title

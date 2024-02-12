@@ -49,19 +49,31 @@
                 <span class="badge rounded-pill badge-success" style="font-size: 120%">7.5</span>
                 <span class="small text-muted">500 оценок</span>
               </div>
-              <div class="col-6">
-                <a class="text-decoration-none text-reset mr-2" href="#">
-                  <i class="fa-regular fa-thumbs-up fa-lg" style="color: #3b7500;"></i>
-                  <i class="fa-regular fa-thumbs-up fa-lg" style="color: #adadad;"></i>
-                </a>
-                <a class="text-decoration-none text-reset mr-2" href="#">
-                  <i class="fa-regular fa-face-meh fa-lg" style="color: #f7e308;"></i>
-                  <i class="fa-regular fa-face-meh fa-lg" style="color: #adadad;"></i>
-                </a>
+              <div class="col-6 text-right">
+                {#                <a class="text-decoration-none text-reset mr-2" href="#">#}
+                {#                  <i class="fa-regular fa-thumbs-up fa-lg" style="color: #3b7500;"></i>#}
+                {#                  <i class="fa-regular fa-thumbs-up fa-lg" style="color: #adadad;"></i>#}
+                {#                </a>#}
+                {#                <a class="text-decoration-none text-reset mr-2" href="#">#}
+                {#                  <i class="fa-regular fa-face-meh fa-lg" style="color: #f7e308;"></i>#}
+                {#                  <i class="fa-regular fa-face-meh fa-lg" style="color: #adadad;"></i>#}
+                {#                </a>#}
+                {#                <a class="text-decoration-none text-reset" href="#">#}
+                {#                  <i class="fa-regular fa-thumbs-down fa-lg" style="color: #ca2407;"></i>#}
+                {#                  <i class="fa-regular fa-thumbs-down fa-lg" style="color: #adadad;"></i>#}
+                {#                </a>#}
                 <a class="text-decoration-none text-reset" href="#">
-                  <i class="fa-regular fa-thumbs-down fa-lg" style="color: #ca2407;"></i>
-                  <i class="fa-regular fa-thumbs-down fa-lg" style="color: #adadad;"></i>
+                  {% if is_liked %}
+                    <a class="text-decoration-none text-reset" href="{% url 'books:remove_like' book.id %}">
+                      <i class="fa-solid fa-heart fa-lg" style="color: #ca2407;"></i>
+                    </a>
+                  {% else %}
+                    <a class="text-decoration-none text-reset" href="{% url 'books:add_like' book.id %}">
+                      <i class="fa-regular fa-heart fa-lg" style="color: #adadad;"></i>
+                    </a>
+                  {% endif %}
                 </a>
+
               </div>
             </div>
 
